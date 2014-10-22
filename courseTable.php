@@ -28,7 +28,7 @@
 	
 	$array = json_decode($json);
 
-    echo '<table>';
+    echo '<table  border="1" style="text-align:center">';
     echo '<tr>
         <td colspan="2">First Year</td>
         <td colspan="2">Second Year</td>
@@ -48,21 +48,31 @@
     </tr>';
 	
     $numClassesPerSemester = 6;
+	$numOfSemesters = 8;	
 
 	
 	for($semIdx = 0; $semIdx < $numClassesPerSemester; $semIdx++){
 		echo '<tr>';
-			echo '<td>'.$array[0][$semIdx]->SUBJ.$array[0][$semIdx]->CRSE.'</td>';
-			echo '<td>'.$array[1][$semIdx]->SUBJ.$array[1][$semIdx]->CRSE.'</td>';
-			echo '<td>'.$array[2][$semIdx]->SUBJ.$array[2][$semIdx]->CRSE.'</td>';
-			echo '<td>'.$array[3][$semIdx]->SUBJ.$array[3][$semIdx]->CRSE.'</td>';
-			echo '<td>'.$array[4][$semIdx]->SUBJ.$array[4][$semIdx]->CRSE.'</td>';
-			echo '<td>'.$array[5][$semIdx]->SUBJ.$array[5][$semIdx]->CRSE.'</td>';
-			echo '<td>'.$array[6][$semIdx]->SUBJ.$array[6][$semIdx]->CRSE.'</td>';
-			echo '<td>'.$array[7][$semIdx]->SUBJ.$array[7][$semIdx]->CRSE.'</td>';
+			for($idx = 0; $idx < $numOfSemesters; $idx++){
+				courseTableEntry($idx, $semIdx, $array);
+			}
 		echo '</tr>';
 	
 	}
+	echo '<tr>
+			<td colspan="8" style="text-align:center">
+				<input height="2" id="getSchedule" type="submit" value="Get Schedule" style="width:90%"/>
+			</td>
+		</tr>';
 	
     echo '</table>';
+	
+	
+	
+	function courseTableEntry($semester, $semIdx, $array){
+		if($array[$semester][$semIdx]->SUBJ.$array[$semester][$semIdx]->CRSE !== ""){
+			echo '<td>'.$array[$semester][$semIdx]->SUBJ.$array[$semester][$semIdx]->CRSE.
+				'<br/><br/><input type="checkbox" name="" value="">Completed?<br></td>';
+		} else echo '<td></td>';
+	}
 ?>
