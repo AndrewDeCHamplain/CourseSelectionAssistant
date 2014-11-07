@@ -40,6 +40,12 @@
 			Lastname : <input type="text" name="lastname"/><br/>
 			Password : <input type="text" name="password"/><br/>
 			Student Number : <input type="number_format" name="studentnumber"/><br/>
+			<select name="stream" id="stream">
+				<option>Computer Systems Engineering</option>
+				<option>Software Engineering</option>
+				<option>Communication Engineering</option>
+				<option>Biomedical Engineering</option>
+			</select><br />
 			<input type="hidden" value="createaccount" name="typeofrequest"/>
 			<input type="submit" value="Create my account"/>
 		</form>

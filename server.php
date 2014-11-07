@@ -21,8 +21,9 @@
 		$password = $_POST['password'];
 		$studentnumber = $_POST['studentnumber'];
 		$coursedata = '000000000000000000000000000000000000000000000000';
+		$stream = $_POST['stream'];
 		
-		$sql = "INSERT INTO userslist VALUES('$login', '$firstname', '$lastname', '".crypt( $password, 'abc' ). "', '$studentnumber', 'null', '$coursedata')";
+		$sql = "INSERT INTO userslist VALUES('$login', '$firstname', '$lastname', '".crypt( $password, 'abc' ). "', '$studentnumber', '$stream', '$coursedata')";
 			
 		$row = $data->execute($sql);
 		if($row){
@@ -65,17 +66,30 @@
 			
 		$data->execute($sql);
 		if($data->connection->affected_rows == 1){
-			echo "The password is udpated";
+			echo "The password is updated";
 		}else{
 			echo "The password was not update";
 		}
 		
 		header("refresh:2;url=view2.php");
 		
+	}
+	
+	if($type=="savecourses"){
+		$login = $_COOKIE['login'];
+		$coursedata = $_POST['coursedatastring'];
 		
+		$sql = "UPDATE userslist SET coursedata='$coursedata' WHERE login='$login'";
+			
+		$data->execute($sql);
 		
-		
-		
+		if($data->connection->affected_rows == 1){
+			echo "The stream is updated";
+		}else{
+			echo "The stream was not update";
+		}
+	
+		header("refresh:2;url=view2.php");
 		
 	}
 	
@@ -91,7 +105,7 @@
 		$data->execute($sql);
 		
 		if($data->connection->affected_rows == 1){
-			echo "The stream is udpated";
+			echo "The stream is updated";
 		}else{
 			echo "The stream was not update";
 		}
