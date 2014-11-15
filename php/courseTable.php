@@ -1,6 +1,6 @@
 <?php
 	
-	echo "<link rel=\"stylesheet\" href=\"style/coursecolors.css\">";
+	echo "<link rel=\"stylesheet\" href=\"../style/coursecolors.css\">";
 	
 	/*
 		The content of the form is sent as an array to php
@@ -12,16 +12,16 @@
 	function createCourseTable($program, $courseData){
 
 		if( $program == 'Computer Systems Engineering'){
-			$json = file_get_contents("json/cseReq.json");
+			$json = file_get_contents("../json/cseReq.json");
 		} 
 		elseif($program == 'Software Engineering'){
-			$json = file_get_contents("json/softwareReq.json");
+			$json = file_get_contents("../json/softwareReq.json");
 		}
 		elseif($program == 'Communication Engineering'){
-			$json = file_get_contents("json/commReq.json");
+			$json = file_get_contents("../json/commReq.json");
 		}
 		elseif($program == 'Biomedical Engineering'){
-			$json = file_get_contents("json/biomedReq.json");
+			$json = file_get_contents("../json/biomedReq.json");
 		}
 		
 		$array = json_decode($json);

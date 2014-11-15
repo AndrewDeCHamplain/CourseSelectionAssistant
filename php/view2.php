@@ -21,16 +21,16 @@
 	
 				
 	if( $program == 'Computer Systems Engineering'){
-			$json = file_get_contents("json/cseReq.json");
+			$json = file_get_contents("../json/cseReq.json");
 		} 
 		elseif($program == 'Software Engineering'){
-			$json = file_get_contents("json/softwareReq.json");
+			$json = file_get_contents("../json/softwareReq.json");
 		}
 		elseif($program == 'Communication Engineering'){
-			$json = file_get_contents("json/commReq.json");
+			$json = file_get_contents("../json/commReq.json");
 		}
 		elseif($program == 'Biomedical Engineering'){
-			$json = file_get_contents("json/biomedReq.json");
+			$json = file_get_contents("../json/biomedReq.json");
 		}
 		
 		$array = json_decode($json);
@@ -154,6 +154,7 @@
 	</div>
 	
 	<h2>Welcome <?php echo $login; ?></h2>
+	<h3>Your Current Stream is <?php echo $program; ?></h3>
 	
 	<div id="home" style="display:block">
 		<form method="post" action="server.php" onsubmit="return getCourseData()">

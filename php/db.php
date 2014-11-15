@@ -1,6 +1,6 @@
 <?php
 class database{
-	
+
 	function __construct($db){
 		$host="localhost";
 		$user="root";
