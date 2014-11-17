@@ -157,7 +157,7 @@
 	<h3>Your Current Stream is <?php echo $program; ?></h3>
 	
 	<div id="home" style="display:block">
-		<form method="post" action="server.php" onsubmit="return getCourseData()">
+		<form method="post" id="getcoursedata" action="server.php" onsubmit="return getCourseData()">
 			<?php
 				$query = mysql_query("SELECT * FROM userslist WHERE login='{$login}'") or die(mysql_error());
 
@@ -221,6 +221,7 @@
 		
 	</div>
 	
+	<div id="schedule"></div>
 	
 </body>
 

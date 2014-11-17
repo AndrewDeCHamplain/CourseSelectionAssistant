@@ -111,23 +111,39 @@
 		}
 	
 		header("refresh:2;url=view2.php");
-		
-		
-		
-		
-		
-		
 	}
 	
 	if($type=="logout"){
 		setcookie("login", "", time() -100);
 		header("Location: view1.php");
+
+	}
+	
+	if($type=="getschedule"){
+		$numClassesPerSemester = 6;
+		$numOfSemesters = 8;
+		
+		$login = $_COOKIE['login'];
+		$coursedata = $_POST['coursedata'];
 		
 		
+		$sql = "SELECT * FROM userslist WHERE login = '$login'";
+		$rows = $data->execute($sql);
+		// returns all the records which a timestampe > than the one received
+
 		
+		$result="<schedule><fall>";
+		//while ( ($row = $rows->fetch_object() ) ){
+		for($fallIdx = 0; $fallIdx<$numClassesPerSemester; $fallIdx++){
+			$result .= "<course>".$fallIdx."</course>";
+		}
+		$result .= "</fall><winter>";
+		for($winterIdx = 0; $winterIdx<$numClassesPerSemester; $winterIdx++){
+			$result .= "<course>".$winterIdx."</course>";
+		}
+		$result .= "</winter></schedule>";
 		
-		
-		
-		
+		header("content-type: text/xml");
+		echo $result;
 	}
 ?>
