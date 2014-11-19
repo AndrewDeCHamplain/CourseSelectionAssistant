@@ -248,6 +248,35 @@
 		}
 		//course data is now a 2 dimensional array stored in temp
 		
+	/* LOGIC FOR CONFLICT FREE SCHEDULER	
+	if(courses.startTime <= newcourse.startTime && courses.endTime>=newcourse.startTime)
+	{
+		//newcourse starts within an old course
+		//return false
+		return false
+	}
+	
+	if(courses.startTime <= newcourse.endTime && courses.endTime>=newcourse.endTime)
+	{
+		//new course ends within an old course
+		//return false
+		return false
+	}
+
+	if(courses.startTime >= newcourse.startTime && courses.endTime<=newcourse.endTime)
+	{
+		//newcourse encapsulated old course
+		//return false
+		return false
+	}
+	
+
+	
+	
+	//new course fits
+	//return true
+	return true
+*/
 		$result="<schedule><fall>";
 		//while ( ($row = $rows->fetch_object() ) ){
 		for($fallIdx = 0; $fallIdx<$numClassesPerSemester; $fallIdx++){
