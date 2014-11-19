@@ -130,7 +130,123 @@
 		$sql = "SELECT * FROM userslist WHERE login = '$login'";
 		$rows = $data->execute($sql);
 		// returns all the records which a timestampe > than the one received
-
+		
+		//turn coursedata into a 2 dimensional array
+		$temp = array(array("","","","","","","",""),
+				  array("","","","","","","",""),
+				  array("","","","","","","",""),
+				  array("","","","","","","",""),
+				  array("","","","","","","",""),
+				  array("","","","","","","",""),
+				  array("","","","","","","",""),
+				  array("","","","","","","",""));
+		
+					  
+		$coursedataarray = str_split($coursedata, 1);
+		for($i =0;$i<strlen($coursedata);$i++)
+		{
+			if($i%8 == 0)
+			{
+				$index = 0;
+				for($j =0;$j<sizeof($temp[$index]);$j++)
+				{
+					if($temp[$index][$j] == "")
+					{
+						$temp[$index][$j] = $coursedataarray[$i];
+						$j = sizeof($temp[$index]);
+					}
+				}
+	
+			}
+			else if($i%8==1)
+			{
+				$index = 1;
+				for($j =0;$j<sizeof($temp[$index]);$j++)
+				{
+					if($temp[$index][$j] == "")
+					{
+						$temp[$index][$j] = $coursedataarray[$i];
+						$j = sizeof($temp[$index]);
+					}
+				}			
+			}
+			else if($i%8==2)
+			{
+				$index = 2;
+				for($j =0;$j<sizeof($temp[$index]);$j++)
+				{
+					if($temp[$index][$j] == "")
+					{
+						$temp[$index][$j] = $coursedataarray[$i];
+						$j = sizeof($temp[$index]);
+					}
+				}			
+			}
+			else if($i%8==3)
+			{
+				$index = 3;
+				for($j =0;$j<sizeof($temp[$index]);$j++)
+				{
+					if($temp[$index][$j] == "")
+					{
+						$temp[$index][$j] = $coursedataarray[$i];
+						$j = sizeof($temp[$index]);
+					}
+				}			
+			}
+			else if($i%8==4)
+			{
+				$index = 4;
+				for($j =0;$j<sizeof($temp[$index]);$j++)
+				{
+					if($temp[$index][$j] == "")
+					{
+						$temp[$index][$j] = $coursedataarray[$i];
+						$j = sizeof($temp[$index]);
+					}
+				}			
+				
+			}
+			else if($i%8==5)
+			{
+				$index = 5;
+				for($j =0;$j<sizeof($temp[$index]);$j++)
+				{
+					if($temp[$index][$j] == "")
+					{
+						$temp[$index][$j] = $coursedataarray[$i];
+						$j = sizeof($temp[$index]);
+					}
+				}			
+			}
+			else if($i%8==6)
+			{
+				$index = 6;
+				for($j =0;$j<sizeof($temp[$index]);$j++)
+				{
+					if($temp[$index][$j] == "")
+					{
+						$temp[$index][$j] = $coursedataarray[$i];
+						$j = sizeof($temp[$index]);
+					}
+				}			
+			}
+			else if($i%8==7)
+			{
+				$index = 7;
+				for($j =0;$j<sizeof($temp[$index]);$j++)
+				{
+					if($temp[$index][$j] == "")
+					{
+						$temp[$index][$j] = $coursedataarray[$i];
+						$j = sizeof($temp[$index]);
+					}
+				}		
+			}
+			
+			
+		}
+		//course data is now a 2 dimensional array stored in temp
 		
 		$result="<schedule><fall>";
 		//while ( ($row = $rows->fetch_object() ) ){
@@ -141,7 +257,18 @@
 		for($winterIdx = 0; $winterIdx<$numClassesPerSemester; $winterIdx++){
 			$result .= "<course>".$winterIdx."</course>";
 		}
-		$result .= "</winter></schedule>";
+		$result .= "</winter>";
+		for($i = 0;$i<8;$i++)
+		{
+			$result .= "<sem".$i.">";
+			for($j = 0;$j<6;$j++)
+			{
+				$result .= $temp[$i][$j];
+			}
+			$result .= "</sem".$i.">";
+		}
+		
+		$result .= "</schedule>";
 		
 		header("content-type: text/xml");
 		echo $result;

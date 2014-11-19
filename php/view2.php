@@ -132,6 +132,11 @@
 							
 							selectedIdx++;
 						}
+						else if(courseArray[semIdx][classIdx-2].SUBJ + courseArray[semIdx][classIdx-2].CRSE == "")
+						{
+							coursesSelected[selectedIdx] = 9;
+							selectedIdx++;
+						}
 					}
 				}	
 			}

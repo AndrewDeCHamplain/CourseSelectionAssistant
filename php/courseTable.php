@@ -139,8 +139,8 @@
 				
 				// XML
 				
-				var response = 	xmlHttp.responseXML; // responseXML or responseText
-				var schedule = response.documentElement.childNodes;
+				var response = 	xmlHttp.responseText; // responseXML or responseText
+			/*	var schedule = response.documentElement.childNodes;
 				
 				var fall = schedule[fallIndex];
 				var winter = schedule[winterIndex];
@@ -158,7 +158,9 @@
 					var info = winter.childNodes[i].innerHTML;
 					document.getElementById("schedule").innerHTML += "<b>Class #: "+info +"<br/>";
 						
-				}
+				}*/
+				
+				console.log(response);
 			}
 		};
 		
@@ -216,6 +218,11 @@
 							coursesSelected[selectedIdx] = 0;
 						}
 						
+						selectedIdx++;
+					}
+					else if(courseArray[semIdx][classIdx-2].SUBJ + courseArray[semIdx][classIdx-2].CRSE == "")
+					{
+						coursesSelected[selectedIdx] = 9;
 						selectedIdx++;
 					}
 				}
