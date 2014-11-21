@@ -1,6 +1,6 @@
 <?php
 	/* 'import' db.php*/
-	require_once("db.php");
+	require_once("php/db.php");
 	/* create the object*/
 	$data = new database("");
 	
@@ -58,7 +58,36 @@
 	)";
 	$data->execute($sqld);
 	
+	$data->execute("DROP TABLE IF EXISTS `prereqdata`");
+	$sqld = "CREATE TABLE IF NOT EXISTS `prereqdata`(
+		id INT NOT NULL AUTO_INCREMENT,
+		course VARCHAR(100),
+		prereq VARCHAR(100),
+		PRIMARY KEY (id)
+	)";
+	$data->execute($sqld);
+	
+	
 	set_time_limit(800);
+	
+	// Populate fall classes database with csv file 'datafall.csv' to be used when scheduling the classes.
+	$row = 0;
+	if (($handle = fopen(".\csv\prereq.csv", "r")) !== FALSE) {
+		while (($datarow = fgetcsv($handle, 1000, ";")) !== FALSE) {
+			$num = count($datarow);
+			$row++;
+			if($row > 1){	
+				$sql = "INSERT INTO `prereqdata` VALUES (default, '$datarow[0]','$datarow[1]')";
+				
+				$rowcheck = $data->execute($sql);
+				if(!$rowcheck){
+					echo "prereq error: " . $data->getError(). "<br \>";
+				}
+			}
+		}
+		fclose($handle);
+	}
+	
 	// Populate fall classes database with csv file 'datafall.csv' to be used when scheduling the classes.
 	$row = 0;
 	if (($handle = fopen(".\csv\datafall.csv", "r")) !== FALSE) {

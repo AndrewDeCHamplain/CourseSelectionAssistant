@@ -1,5 +1,7 @@
 <?php
 	require_once("db.php");
+	include "connection.php";
+	
 	$data = new database("usersdb2");
 
 	$type = $_POST['typeofrequest'];
@@ -277,7 +279,7 @@
 	//return true
 	return true
 */
-		$result="<schedule><fall>";
+		$result= "<schedule><fall>";
 		//while ( ($row = $rows->fetch_object() ) ){
 		for($fallIdx = 0; $fallIdx<$numClassesPerSemester; $fallIdx++){
 			$result .= "<course>".$fallIdx."</course>";
@@ -301,5 +303,30 @@
 		
 		header("content-type: text/xml");
 		echo $result;
+	}
+	function schedule($coursedata)
+	{
+		$query = mysql_query("SELECT * FROM userslist WHERE login='{$login}'") or die(mysql_error());
+		$row = mysql_fetch_array($query);
+		$stream = $row['stream'];
+		
+		
+		
+		
+		
+		return "testing";
+	}
+	function checkIfClassFull($fallorwinter, $courseid)
+	{
+		
+		$query = mysql_query("SELECT * FROM $fallorwinter WHERE id='{$courseid}'") or die(mysql_error());
+		$row = mysql_fetch_array($query);
+		$available = $row['enrolled'];
+		
+		if($available>0)
+		{
+			return true;
+		}
+		return false;
 	}
 ?>
