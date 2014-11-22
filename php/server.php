@@ -95,25 +95,62 @@
 		
 	}
 	
-	if($type=="setstream")
+	function returnCourseArray($program)
 	{
-	
-		$login = $_COOKIE['login'];
-		$stream = $_POST['program'];
-		$coursedata = '000000000000000000000000000000000000000000000000';
-		
-		$sql = "UPDATE userslist SET stream='$stream' WHERE login='$login'";
-			
-		$data->execute($sql);
-		
-		if($data->connection->affected_rows == 1){
-			echo "The stream is updated";
-		}else{
-			echo "The stream was not update";
+		 
+		if( $program == 'Computer Systems Engineering'){
+		$json = file_get_contents("../json/cseReq.json");
+		} 
+		elseif($program == 'Software Engineering'){
+		$json = file_get_contents("../json/softwareReq.json");
 		}
-	
-		header("refresh:2;url=view2.php");
+		elseif($program == 'Communication Engineering'){
+		$json = file_get_contents("../json/commReq.json");
+		}
+		elseif($program == 'Biomedical Engineering'){
+		$json = file_get_contents("../json/biomedReq.json");
+		}
+		 
+		$array = json_decode($json);
+		return $array;
 	}
+ if($type=="setstream"){
+  
+ 	$login = $_COOKIE['login'];
+ 	$stream = $_POST['program'];
+ 	$coursedata = "";
+ 	 
+ 	 
+ 	$coursearray = returnCourseArray($stream);
+ 	$numClassesPerSemester = 6;
+ 	$numOfSemesters = 8;
+ 	 
+ 	for($i = 0;$i<$numOfSemesters;$i++)
+ 	{
+		for($j = 0;$j<$numClassesPerSemester;$j++)
+		{
+			if($coursearray[$i][$j]->SUBJ === "")
+			{
+				$coursedata=$coursedata."9";
+			}
+			else
+			{
+				$coursedata=$coursedata."0";
+			}
+		}
+ 	}
+ 	 
+ 	$sql = "UPDATE userslist SET stream='$stream', coursedata='$coursedata' WHERE login='$login'"; 
+ 	$data->execute($sql);
+ 	 
+ 	if($data->connection->affected_rows == 1){
+		echo "The stream is updated ".$coursedata;
+ 	}else{
+		echo "The stream was not update";
+ 	}
+  
+ 	header("refresh:2;url=view2.php");
+ }
 	
 	if($type=="logout"){
 		setcookie("login", "", time() -100);
@@ -124,15 +161,131 @@
 	if($type=="getschedule"){
 		$numClassesPerSemester = 6;
 		$numOfSemesters = 8;
+		$schedule = array(array(), array()); // the schedule array will have a fall and winter array
 		
 		$login = $_COOKIE['login'];
 		$coursedata = $_POST['coursedata'];
 		
 		
-		$sql = "SELECT * FROM userslist WHERE login = '$login'";
-		$rows = $data->execute($sql);
-		// returns all the records which a timestampe > than the one received
+		$query = mysql_query("SELECT * FROM userslist WHERE login='{$login}'") or die(mysql_error());
+		$row = mysql_fetch_array($query);
+		$program = $row['stream'];
 		
+		$programArray = returnCourseArray($program);
+		$coursedataarray = getCourseDataArray($coursedata);
+		
+		$tempcount=0;
+		for($semIdx = 0; $semIdx<$numOfSemesters; $semIdx++){
+			for($courseIdx = 0; $courseIdx<5; $courseIdx++){
+				if($coursedataarray[$semIdx][$courseIdx] == 0){
+				
+					if($tempcount < 5){
+						
+						array_push($schedule[0], $programArray[$semIdx][$courseIdx]);
+						/*$query = mysql_query("SELECT * FROM falldata WHERE subj='{$programArray[$semIdx][$courseIdx]->SUBJ}', 
+							crse='{$programArray[$semIdx][$courseIdx]->CRSE}' LIMIT 1") or die(mysql_error());
+						$row = mysql_fetch_array($query);
+						if($row !== false){
+							//array_push($schedule[0], $programArray[$semIdx][$courseIdx]);
+						}*/
+					} else {
+						array_push($schedule[1], $programArray[$semIdx][$courseIdx]);
+					/*
+						array_push($schedule[1], $programArray[$semIdx][$courseIdx]);
+						$query = mysql_query("SELECT * FROM winterdata WHERE subj='{$programArray[$semIdx][$courseIdx]->SUBJ}', 
+							crse='{$programArray[$semIdx][$courseIdx]->CRSE}' LIMIT 1") or die(mysql_error());
+						$row = mysql_fetch_array($query);
+						if($row !== false){
+							//array_push($schedule[1], $programArray[$semIdx][$courseIdx]);
+						}*/
+					}
+					$tempcount++;
+				}
+			}
+		}
+		
+	/* LOGIC FOR CONFLICT FREE SCHEDULER	
+	if(courses.startTime <= newcourse.startTime && courses.endTime>=newcourse.startTime)
+	{
+		//newcourse starts within an old course
+		//return false
+		return false
+	}
+	
+	if(courses.startTime <= newcourse.endTime && courses.endTime>=newcourse.endTime)
+	{
+		//new course ends within an old course
+		//return false
+		return false
+	}
+
+	if(courses.startTime >= newcourse.startTime && courses.endTime<=newcourse.endTime)
+	{
+		//newcourse encapsulated old course
+		//return false
+		return false
+	}
+	
+
+	
+	
+	//new course fits
+	//return true
+	return true
+*/
+		$result= "<schedule><fall>";
+		//while ( ($row = $rows->fetch_object() ) ){
+		for($fallIdx = 0; $fallIdx<5; $fallIdx++){
+			$result .= "<course>".$schedule[0][$fallIdx]->SUBJ.$schedule[0][$fallIdx]->CRSE."</course>";
+		}
+		$result .= "</fall><winter>";
+		for($winterIdx = 0; $winterIdx<5; $winterIdx++){
+			$result .= "<course>".$schedule[1][$winterIdx]->SUBJ.$schedule[1][$winterIdx]->CRSE."</course>";
+		}
+		$result .= "</winter>";
+		for($i = 0;$i<8;$i++)
+		{
+			$result .= "<sem".$i.">";
+			for($j = 0;$j<6;$j++)
+			{
+				$result .= $coursedataarray[$i][$j];
+			}
+			$result .= "</sem".$i.">";
+		}
+		
+		$result .= "</schedule>";
+		
+		header("content-type: text/xml");
+		echo $result;
+	}
+	function schedule($coursedata)
+	{
+		$query = mysql_query("SELECT * FROM userslist WHERE login='{$login}'") or die(mysql_error());
+		$row = mysql_fetch_array($query);
+		$stream = $row['stream'];
+		
+		
+		
+		
+		
+		return "testing";
+	}
+	function checkIfClassFull($fallorwinter, $courseid)
+	{
+		
+		$query = mysql_query("SELECT * FROM $fallorwinter WHERE id='{$courseid}'") or die(mysql_error());
+		$row = mysql_fetch_array($query);
+		$available = $row['enrolled'];
+		
+		if($available>0)
+		{
+			return true;
+		}
+		return false;
+	}
+	
+	function getCourseDataArray($coursedata){
+	
 		//turn coursedata into a 2 dimensional array
 		$temp = array(array("","","","","","","",""),
 				  array("","","","","","","",""),
@@ -245,88 +398,8 @@
 					}
 				}		
 			}
-			
-			
 		}
 		//course data is now a 2 dimensional array stored in temp
-		
-	/* LOGIC FOR CONFLICT FREE SCHEDULER	
-	if(courses.startTime <= newcourse.startTime && courses.endTime>=newcourse.startTime)
-	{
-		//newcourse starts within an old course
-		//return false
-		return false
-	}
-	
-	if(courses.startTime <= newcourse.endTime && courses.endTime>=newcourse.endTime)
-	{
-		//new course ends within an old course
-		//return false
-		return false
-	}
-
-	if(courses.startTime >= newcourse.startTime && courses.endTime<=newcourse.endTime)
-	{
-		//newcourse encapsulated old course
-		//return false
-		return false
-	}
-	
-
-	
-	
-	//new course fits
-	//return true
-	return true
-*/
-		$result= "<schedule><fall>";
-		//while ( ($row = $rows->fetch_object() ) ){
-		for($fallIdx = 0; $fallIdx<$numClassesPerSemester; $fallIdx++){
-			$result .= "<course>".$fallIdx."</course>";
-		}
-		$result .= "</fall><winter>";
-		for($winterIdx = 0; $winterIdx<$numClassesPerSemester; $winterIdx++){
-			$result .= "<course>".$winterIdx."</course>";
-		}
-		$result .= "</winter>";
-		for($i = 0;$i<8;$i++)
-		{
-			$result .= "<sem".$i.">";
-			for($j = 0;$j<6;$j++)
-			{
-				$result .= $temp[$i][$j];
-			}
-			$result .= "</sem".$i.">";
-		}
-		
-		$result .= "</schedule>";
-		
-		header("content-type: text/xml");
-		echo $result;
-	}
-	function schedule($coursedata)
-	{
-		$query = mysql_query("SELECT * FROM userslist WHERE login='{$login}'") or die(mysql_error());
-		$row = mysql_fetch_array($query);
-		$stream = $row['stream'];
-		
-		
-		
-		
-		
-		return "testing";
-	}
-	function checkIfClassFull($fallorwinter, $courseid)
-	{
-		
-		$query = mysql_query("SELECT * FROM $fallorwinter WHERE id='{$courseid}'") or die(mysql_error());
-		$row = mysql_fetch_array($query);
-		$available = $row['enrolled'];
-		
-		if($available>0)
-		{
-			return true;
-		}
-		return false;
+		return $temp;
 	}
 ?>
