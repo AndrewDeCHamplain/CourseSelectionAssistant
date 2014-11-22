@@ -195,7 +195,9 @@
 							$query = mysql_query("SELECT * FROM falldata WHERE subj='{$programArray[$semIdx][$courseIdx]->SUBJ}' AND 
 								crse='{$programArray[$semIdx][$courseIdx]->CRSE}' LIMIT 1") or die(mysql_error());
 							if(mysql_fetch_array($query) !== false){
-								array_push($schedule[$fallId], $programArray[$semIdx][$courseIdx]);
+								if(checkPrereqs($programArray[$semIdx][$courseIdx]->SUBJ." ".$programArray[$semIdx][$courseIdx]->CRSE)){
+									array_push($schedule[$fallId], $programArray[$semIdx][$courseIdx]);
+								}
 							}
 						}
 					
@@ -205,43 +207,16 @@
 							$query = mysql_query("SELECT * FROM winterdata WHERE subj='{$programArray[$semIdx][$courseIdx]->SUBJ}' AND 
 								crse='{$programArray[$semIdx][$courseIdx]->CRSE}' LIMIT 1") or die(mysql_error());
 							if(mysql_fetch_array($query) !== false){
-								array_push($schedule[$winterId], $programArray[$semIdx][$courseIdx]);
+								if(checkPrereqs($programArray[$semIdx][$courseIdx]->SUBJ." ".$programArray[$semIdx][$courseIdx]->CRSE)){
+									array_push($schedule[$winterId], $programArray[$semIdx][$courseIdx]);
+								}
 							}
 						}
 					}
 				}
 			}
 		}
-		
-	/* LOGIC FOR CONFLICT FREE SCHEDULER	
-	if(courses.startTime <= newcourse.startTime && courses.endTime>=newcourse.startTime)
-	{
-		//newcourse starts within an old course
-		//return false
-		return false
-	}
-	
-	if(courses.startTime <= newcourse.endTime && courses.endTime>=newcourse.endTime)
-	{
-		//new course ends within an old course
-		//return false
-		return false
-	}
 
-	if(courses.startTime >= newcourse.startTime && courses.endTime<=newcourse.endTime)
-	{
-		//newcourse encapsulated old course
-		//return false
-		return false
-	}
-	
-
-	
-	
-	//new course fits
-	//return true
-	return true
-*/
 		$result= "<schedule><fall>";
 		//while ( ($row = $rows->fetch_object() ) ){
 		for($fallIdx = 0; $fallIdx<sizeof($schedule[0]); $fallIdx++){
@@ -251,18 +226,7 @@
 		for($winterIdx = 0; $winterIdx<5; $winterIdx++){
 			$result .= "<course>".$schedule[1][$winterIdx]->SUBJ.$schedule[1][$winterIdx]->CRSE."</course>";
 		}
-		$result .= "</winter>";
-		for($i = 0;$i<8;$i++)
-		{
-			$result .= "<sem".$i.">";
-			for($j = 0;$j<6;$j++)
-			{
-				$result .= $coursedataarray[$i][$j];
-			}
-			$result .= "</sem".$i.">";
-		}
-		
-		$result .= "</schedule>";
+		$result .= "</winter></schedule>";
 		
 		header("content-type: text/xml");
 		echo $result;
@@ -294,8 +258,13 @@
 	}
 	
 	function checkPrereqs($class){
-	
-	
+		$query = mysql_query("SELECT * FROM prereqdata WHERE course='{$class}'") or die(mysql_error());
+		$row = mysql_fetch_array($query);
+		$prereqinfo = $row['prereq'];
+		
+		
+		
+		return true;
 	}
 	
 	function hasConflicts($arrayofcourses, $newcourse)
