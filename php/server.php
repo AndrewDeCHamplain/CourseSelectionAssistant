@@ -6,6 +6,9 @@
 
 	$type = $_POST['typeofrequest'];
 	
+	$fallId = 0;
+	$winterId = 1;
+	
 	if($type=="createaccount"){
 		$login = $_POST['login'];
 		
@@ -163,6 +166,14 @@
 		$numOfSemesters = 8;
 		$schedule = array(array(), array()); // the schedule array will have a fall and winter array
 		
+		/*
+		Year standing defs:
+			First Year: Fewer than 4.0 credits
+			Second Year: 4.0 through 8.5 credits
+			Third Year: 9.0 through 13.5 credits
+			Fourth Year: 14.0 or more credits (only for students in 20.0 credit degree programs)
+		*/
+		
 		$login = $_COOKIE['login'];
 		$coursedata = $_POST['coursedata'];
 		
@@ -174,32 +185,30 @@
 		$programArray = returnCourseArray($program);
 		$coursedataarray = getCourseDataArray($coursedata);
 		
-		$tempcount=0;
 		for($semIdx = 0; $semIdx<$numOfSemesters; $semIdx++){
-			for($courseIdx = 0; $courseIdx<5; $courseIdx++){
+			for($courseIdx = 0; $courseIdx<$numClassesPerSemester; $courseIdx++){
 				if($coursedataarray[$semIdx][$courseIdx] == 0){
 				
-					if($tempcount < 5){
+					if(($semIdx % 2) === $fallId && sizeof($schedule[$fallId]) < 5){
+					
+						if($programArray[$semIdx][$courseIdx]->SUBJ !== 'ELECTIVE'){
+							$query = mysql_query("SELECT * FROM falldata WHERE subj='{$programArray[$semIdx][$courseIdx]->SUBJ}' AND 
+								crse='{$programArray[$semIdx][$courseIdx]->CRSE}' LIMIT 1") or die(mysql_error());
+							if(mysql_fetch_array($query) !== false){
+								array_push($schedule[$fallId], $programArray[$semIdx][$courseIdx]);
+							}
+						}
+					
+					} else if (($semIdx % 2) === $winterId && sizeof($schedule[$winterId]) < 5){
 						
-						array_push($schedule[0], $programArray[$semIdx][$courseIdx]);
-						/*$query = mysql_query("SELECT * FROM falldata WHERE subj='{$programArray[$semIdx][$courseIdx]->SUBJ}', 
-							crse='{$programArray[$semIdx][$courseIdx]->CRSE}' LIMIT 1") or die(mysql_error());
-						$row = mysql_fetch_array($query);
-						if($row !== false){
-							//array_push($schedule[0], $programArray[$semIdx][$courseIdx]);
-						}*/
-					} else {
-						array_push($schedule[1], $programArray[$semIdx][$courseIdx]);
-					/*
-						array_push($schedule[1], $programArray[$semIdx][$courseIdx]);
-						$query = mysql_query("SELECT * FROM winterdata WHERE subj='{$programArray[$semIdx][$courseIdx]->SUBJ}', 
-							crse='{$programArray[$semIdx][$courseIdx]->CRSE}' LIMIT 1") or die(mysql_error());
-						$row = mysql_fetch_array($query);
-						if($row !== false){
-							//array_push($schedule[1], $programArray[$semIdx][$courseIdx]);
-						}*/
+						if($programArray[$semIdx][$courseIdx]->SUBJ !== 'ELECTIVE'){
+							$query = mysql_query("SELECT * FROM winterdata WHERE subj='{$programArray[$semIdx][$courseIdx]->SUBJ}' AND 
+								crse='{$programArray[$semIdx][$courseIdx]->CRSE}' LIMIT 1") or die(mysql_error());
+							if(mysql_fetch_array($query) !== false){
+								array_push($schedule[$winterId], $programArray[$semIdx][$courseIdx]);
+							}
+						}
 					}
-					$tempcount++;
 				}
 			}
 		}
@@ -235,7 +244,7 @@
 */
 		$result= "<schedule><fall>";
 		//while ( ($row = $rows->fetch_object() ) ){
-		for($fallIdx = 0; $fallIdx<5; $fallIdx++){
+		for($fallIdx = 0; $fallIdx<sizeof($schedule[0]); $fallIdx++){
 			$result .= "<course>".$schedule[0][$fallIdx]->SUBJ.$schedule[0][$fallIdx]->CRSE."</course>";
 		}
 		$result .= "</fall><winter>";
@@ -282,6 +291,67 @@
 			return true;
 		}
 		return false;
+	}
+	
+	function checkPrereqs($class){
+	
+	
+	}
+	
+	function hasConflicts($arrayofcourses, $newcourse)
+	{
+		//test new course against all courses in the array
+		$newcourseday = $newcourse['day'];//get the day for the class newcourse
+		$newcoursedayarray = str_split($newcourseday, 1);
+		if(strlen($newcourseday) == 1)
+		{
+			$newcoursedayarray[1] = "";
+		}
+		$newcoursestarttime = intval($newcourse['starttime']);
+		$newcourseendtime = intval($newcourse['endtime']);
+		
+		for($i=0;$i<sizeof($arrayofcourses);$i++)
+		{
+			$oldcourseday = $arrayofcourses[$i]['day'];//get the day for arrayofcourses[$i]
+			$oldcoursedayarray = str_split($oldcourseday, 1);
+			if(strlen($oldcourseday) == 1)
+			{
+				$oldcoursedayarray[1] = "";
+			}
+			$oldcoursestarttime = intval($arrayofcourses[$i]['starttime']);
+			$oldcourseendtime = intval($arrayofcourses[$i]['endtime']);
+			
+			if($oldcoursedayarray[0] === $newcoursedayarray[0] || 
+				$oldcoursedayarray[1] === $newcoursedayarray[1] || 
+				$oldcoursedayarray[0] === $newcoursedayarray[1] || 
+				$oldcoursedayarray[1] === $newcoursedayarray[0])
+			{
+				if($oldcoursestarttime <= $newcoursestarttime && $oldcourseendtime >= $newcoursestarttime)
+				{
+					//newcourse starts within an old course
+					//return false
+					return false;
+				}
+				
+				if($oldcoursestarttime <= $newcourseendtime &&  $oldcourseendtime>=$newcourseendtime)
+				{
+					//new course ends within an old course
+					//return false
+					return false;
+				}
+
+				if($oldcoursestarttime >=$newcoursestarttime &&  $oldcourseendtime<=$newcourseendtime)
+				{
+					//newcourse encapsulated old course
+					//return false
+					return false;
+				}
+			}
+		}
+				
+		//new course fits
+		//return true
+		return true;
 	}
 	
 	function getCourseDataArray($coursedata){
