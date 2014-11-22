@@ -219,12 +219,12 @@
 
 		$result= "<schedule><fall>";
 		//while ( ($row = $rows->fetch_object() ) ){
-		for($fallIdx = 0; $fallIdx<sizeof($schedule[0]); $fallIdx++){
-			$result .= "<course>".$schedule[0][$fallIdx]->SUBJ.$schedule[0][$fallIdx]->CRSE."</course>";
+		for($fallIdx = 0; $fallIdx<sizeof($schedule[$fallId]); $fallIdx++){
+			$result .= "<course>".$schedule[$fallId][$fallIdx]->SUBJ.$schedule[$fallId][$fallIdx]->CRSE."</course>";
 		}
 		$result .= "</fall><winter>";
-		for($winterIdx = 0; $winterIdx<5; $winterIdx++){
-			$result .= "<course>".$schedule[1][$winterIdx]->SUBJ.$schedule[1][$winterIdx]->CRSE."</course>";
+		for($winterIdx = 0; $winterIdx<sizeof($schedule[$winterId]); $winterIdx++){
+			$result .= "<course>".$schedule[$winterId][$winterIdx]->SUBJ.$schedule[$winterId][$winterIdx]->CRSE."</course>";
 		}
 		$result .= "</winter></schedule>";
 		
@@ -242,6 +242,46 @@
 		
 		
 		return "testing";
+	}
+	function getYearStanding($coursedataarray)
+	{
+		/*
+		Year standing defs:
+			First Year: Fewer than 4.0 credits
+			Second Year: 4.0 through 8.5 credits
+			Third Year: 9.0 through 13.5 credits
+			Fourth Year: 14.0 or more credits (only for students in 20.0 credit degree programs)
+		*/
+		$weightpercredit = 0.5;
+		$credits = 0;
+		for($i = 0;$i<sizeof($coursedataarray);$i++)
+		{
+			for($j =0;$j<sizeof($coursedataarray[$i]);$j++)
+			{
+				if($coursedataarray[$i][$j] === "1")
+				{
+					$credits++;
+				}
+			}
+		}
+		$points = $credits * $weightpercredit;
+		
+		if($points<4.0)
+		{
+			return 1;
+		}
+		else if($points<8.5)
+		{
+			return 2;
+		}
+		else if($points< 13.5)
+		{
+			return 3;
+		}
+		else 
+		{
+			return 4;
+		}
 	}
 	function checkIfClassFull($fallorwinter, $courseid)
 	{
