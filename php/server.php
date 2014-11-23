@@ -187,33 +187,44 @@
 		
 		for($semIdx = 0; $semIdx<$numOfSemesters; $semIdx++){
 			for($courseIdx = 0; $courseIdx<$numClassesPerSemester; $courseIdx++){
-				if($coursedataarray[$semIdx][$courseIdx] == 0){
 				
-					if(($semIdx % 2) === $fallId && sizeof($schedule[$fallId]) < 5){
-					
-						if($programArray[$semIdx][$courseIdx]->SUBJ !== 'ELECTIVE'){
-							$query = mysql_query("SELECT * FROM falldata WHERE subj='{$programArray[$semIdx][$courseIdx]->SUBJ}' AND 
-								crse='{$programArray[$semIdx][$courseIdx]->CRSE}' LIMIT 1") or die(mysql_error());
-							if(mysql_fetch_array($query) !== false){
-								if(checkPrereqs($programArray[$semIdx][$courseIdx]->SUBJ." ".$programArray[$semIdx][$courseIdx]->CRSE)){
-									array_push($schedule[$fallId], $programArray[$semIdx][$courseIdx]);
+					if(/*($semIdx % 2) === $fallId && */sizeof($schedule[$fallId]) < 5){
+						if($coursedataarray[$semIdx][$courseIdx] == 0  )
+						{
+				
+							if($programArray[$semIdx][$courseIdx]->SUBJ !== 'ELECTIVE'){
+								$query = mysql_query("SELECT * FROM falldata WHERE subj='{$programArray[$semIdx][$courseIdx]->SUBJ}' AND 
+									crse='{$programArray[$semIdx][$courseIdx]->CRSE}' LIMIT 1") or die(mysql_error());
+								if(mysql_fetch_array($query) !== false){
+									if(checkPrereqs($programArray[$semIdx][$courseIdx]->SUBJ." ".$programArray[$semIdx][$courseIdx]->CRSE)){
+										array_push($schedule[$fallId], $programArray[$semIdx][$courseIdx]);
+										$coursedataarray[$semIdx][$courseIdx] = 2;
+									}
 								}
-							}
+								
+							}	
+							
 						}
 					
-					} else if (($semIdx % 2) === $winterId && sizeof($schedule[$winterId]) < 5){
-						
-						if($programArray[$semIdx][$courseIdx]->SUBJ !== 'ELECTIVE'){
-							$query = mysql_query("SELECT * FROM winterdata WHERE subj='{$programArray[$semIdx][$courseIdx]->SUBJ}' AND 
-								crse='{$programArray[$semIdx][$courseIdx]->CRSE}' LIMIT 1") or die(mysql_error());
-							if(mysql_fetch_array($query) !== false){
-								if(checkPrereqs($programArray[$semIdx][$courseIdx]->SUBJ." ".$programArray[$semIdx][$courseIdx]->CRSE)){
-									array_push($schedule[$winterId], $programArray[$semIdx][$courseIdx]);
+					} 
+
+					 if (/*($semIdx % 2) === $winterId &&*/ sizeof($schedule[$winterId]) < 5){
+						if($coursedataarray[$semIdx][$courseIdx] == 0  )
+						{
+				
+							if($programArray[$semIdx][$courseIdx]->SUBJ !== 'ELECTIVE'){
+								$query = mysql_query("SELECT * FROM winterdata WHERE subj='{$programArray[$semIdx][$courseIdx]->SUBJ}' AND 
+									crse='{$programArray[$semIdx][$courseIdx]->CRSE}' LIMIT 1") or die(mysql_error());
+								if(mysql_fetch_array($query) !== false){
+									if(checkPrereqs($programArray[$semIdx][$courseIdx]->SUBJ." ".$programArray[$semIdx][$courseIdx]->CRSE)){
+										array_push($schedule[$winterId], $programArray[$semIdx][$courseIdx]);
+										$coursedataarray[$semIdx][$courseIdx] = 2;
+									}
 								}
 							}
 						}
 					}
-				}
+				
 			}
 		}
 
