@@ -21,19 +21,19 @@
 	
 				
 	if( $program == 'Computer Systems Engineering'){
-			$json = file_get_contents("../json/cseReq.json");
-		} 
-		elseif($program == 'Software Engineering'){
-			$json = file_get_contents("../json/softwareReq.json");
-		}
-		elseif($program == 'Communication Engineering'){
-			$json = file_get_contents("../json/commReq.json");
-		}
-		elseif($program == 'Biomedical Engineering'){
-			$json = file_get_contents("../json/biomedReq.json");
-		}
+		$json = file_get_contents("../json/cseReq.json");
+	} 
+	elseif($program == 'Software Engineering'){
+		$json = file_get_contents("../json/softwareReq.json");
+	}
+	elseif($program == 'Communication Engineering'){
+		$json = file_get_contents("../json/commReq.json");
+	}
+	elseif($program == 'Biomedical Engineering'){
+		$json = file_get_contents("../json/biomedReq.json");
+	}
 		
-		$array = json_decode($json);
+	$array = json_decode($json);
 		
 	// Create an array of php data to be used in JS
 	$jsdata = array('courseArray' => $array);
@@ -132,6 +132,11 @@
 							
 							selectedIdx++;
 						}
+						else if(courseArray[semIdx][classIdx-2].SUBJ + courseArray[semIdx][classIdx-2].CRSE == "")
+						{
+							coursesSelected[selectedIdx] = 9;
+							selectedIdx++;
+						}
 					}
 				}	
 			}
@@ -157,7 +162,7 @@
 	<h3>Your Current Stream is <?php echo $program; ?></h3>
 	
 	<div id="home" style="display:block">
-		<form method="post" action="server.php" onsubmit="return getCourseData()">
+		<form method="post" id="getcoursedata" action="server.php" onsubmit="return getCourseData()">
 			<?php
 				$query = mysql_query("SELECT * FROM userslist WHERE login='{$login}'") or die(mysql_error());
 
@@ -221,6 +226,7 @@
 		
 	</div>
 	
+	<div id="schedule"></div>
 	
 </body>
 
