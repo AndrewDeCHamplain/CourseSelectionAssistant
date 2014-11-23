@@ -1,91 +1,91 @@
-ELEC 1908;registration in the Engineering Physics program
-ELEC 2501;MATH 1005 and (PHYS 1004 or PHYS 1002)
+ELEC 1908;enrolment Engineering Physics
+ELEC 2501;MATH 1005 and PHYS 1004 or PHYS 1002
 ELEC 2507;ELEC 2501
 ELEC 2607;PHYS 1004 or PHYS 1002
-ELEC 3105;MATH 2004 and (PHYS 1004 or  PHYS 1002)
+ELEC 3105;MATH 2004 and PHYS 1004 or  PHYS 1002
 ELEC 3500;ELEC 2507 and ELEC 2607
 ELEC 3508;ELEC 2501 and ELEC 2507
 ELEC 3509;ELEC 2507
-ELEC 3605;MATH 1005 and (PHYS 1004 or  PHYS 1002)
-ELEC 3907;ELEC 2607, ELEC 2507, and ECOR 2606, and enrolment in the Electrical Engineering program
+ELEC 3605;MATH 1005 and PHYS 1004 or  PHYS 1002
+ELEC 3907;ELEC 2607 and ELEC 2507 and ECOR 2606 and enrolment Electrical Engineering
 ELEC 3908;ELEC 2507
 ELEC 3909;ELEC 3105 or permission of the Department
-ELEC 4502;ELEC 4503 (may be taken concurrently)
+ELEC 4502;ELEC 4503 may be taken concurrently
 ELEC 4503;ELEC 3909
 ELEC 4504;fourth-year status in Engineering
-ELEC 4505;ELEC 3509 and (SYSC 3501 or SYSC 3503)
+ELEC 4505;ELEC 3509 and SYSC 3501 or SYSC 3503
 ELEC 4506;fourth-year status in Engineering
 ELEC 4509;fourth-year status in Engineering or permission of the Department
 ELEC 4600;fourth-year status in Engineering or permission of the Department
-ELEC 4601;ELEC 2607 and one of SYSC 2003 or SYSC 3003 or SYSC 3006 or permission of the Department
+ELEC 4601;ELEC 2607 and SYSC 2003 or SYSC 3003 or SYSC 3006 or permission of the Department
 ELEC 4602;fourth-year status in Engineering
 ELEC 4609;ELEC 3500 or ELEC 3908
 ELEC 4700;ELEC 3908
 ELEC 4702;ELEC 3908 and ELEC 3909
-ELEC 4703;ELEC 2501 and ELEC 2507 and fourth-year status in Sustainable and Renewable Energy Engineering, or ELEC 2501 and ELEC 2507 and fourth-year status in Engineering with permission of the instructor
+ELEC 4703;ELEC 2501 and ELEC 2507 and fourth-year status in Sustainable n Renewable Energy Engineering or ELEC 2501 and ELEC 2507 and fourth-year status in Engineering or permission of the department
 ELEC 4704;ELEC 3908
 ELEC 4705;fourth-year status in Engineering
 ELEC 4706;ELEC 3500
 ELEC 4707;ELEC 3509
-ELEC 4708;fourth-year status in Engineering and ELEC 3500) or permission of the department
+ELEC 4708;fourth-year status in Engineering and ELEC 3500 or permission of the department
 ELEC 4709;fourth-year status in Engineering
 ELEC 4906;fourth-year status in Engineering
-ELEC 4907;ELEC 3907, ECOR 4995 (may be taken concurrently) and fourth-year status in Engineering
-ELEC 4908;fourth-year status in Engineering and ECOR 4995 (may be taken concurrently)
-SYSC 1005;onal credit for ECOR 1606, SYSC 1101, COMP 1005 and COMP 1405
+ELEC 4907;ELEC 3907 and ECOR 4995 may be taken concurrently and fourth-year status in Engineering
+ELEC 4908;fourth-year status in Engineering and ECOR 4995 may be taken concurrently
+SYSC 1005;	
 SYSC 2001;ECOR 1606 or SYSC 1005
-SYSC 2003;SYSC 2001 and (SYSC 2002 or SYSC 2006)
+SYSC 2003;SYSC 2001 and SYSC 2002 or SYSC 2006
 SYSC 2004;SYSC 2002 or SYSC 2006 or permission of the department
 SYSC 2006;ECOR 1606 or SYSC 1005
-SYSC 2100;(SYSC 1102 or SYSC 2006) and (SYSC 1101 or SYSC 2004)
-SYSC 3006;(SYSC 2002 or SYSC 2006) and ELEC 2607
-SYSC 3010;SYSC 2004 and SYSC 2100, and third-year status in Computer Systems Engineering
-SYSC 3020;SYSC 2004 and (SYSC 2006 or SYSC 2002)
+SYSC 2100;SYSC 1102 or SYSC 2006 and SYSC 1101 or SYSC 2004
+SYSC 3006;SYSC 2002 or SYSC 2006 and ELEC 2607
+SYSC 3010;SYSC 2004 and SYSC 2100 and third-year status in Computer Systems Engineering
+SYSC 3020;SYSC 2004 and SYSC 2006 or SYSC 2002
 SYSC 3101;SYSC 2004 or SYSC 2100
-SYSC 3110;SYSC 2004 and SYSC 2100, and third-year status in Software Engineering
+SYSC 3110;SYSC 2004 and SYSC 2100 and third-year status in Software Engineering
 SYSC 3120;SYSC 2004 and SYSC 2100 and third-year status in Software Engineering
-SYSC 3200;MATH 1004 and MATH 1104 and (ECOR 1606 or SYSC 1100)
-SYSC 3203;MATH 3705 and PHYS 1004 and enrolment in Biomedical and Electrical Engineering or Biomedical and Mechanical Engineering programs
-SYSC 3303;for students in the Faculty of Engineering and Design, SYSC 2003 and (SYSC 2004 or SYSC 2100);for students in Computer Science, (COMP 2003 or COMP 2401) and (COMP 2002 or COMP 2402)
+SYSC 3200;MATH 1004 and MATH 1104 and ECOR 1606 or SYSC 1100
+SYSC 3203;MATH 3705 and PHYS 1004 and enrolment Biomedical n Electrical Engineering or enrolment Biomedical n Mechanical Engineering
+SYSC 3303;first-year status in Engineering and SYSC 2003 and SYSC 2004 or SYSC 2100
 SYSC 3500;MATH 2004
-SYSC 3501;MATH 3705 and (SYSC 3600 or SYSC 3610)
+SYSC 3501;MATH 3705 and SYSC 3600 or SYSC 3610
 SYSC 3503;SYSC 3500 and STAT 2605
-SYSC 3600;MATH 1005, and (ECOR 1101 or PHYS 1001)
-SYSC 3601;ELEC 2607, and SYSC 2003 or permission of the department
-SYSC 3610;MATH 3705 and ECOR 1101 and enrolment in Biomedical and Electrical Engineering program or in Biomedical and Mechanical Engineering programs
-SYSC 4001;(SYSC 2002 or  SYSC 2100) and (SYSC 2003 or SYSC 3006)
-SYSC 4005;(STAT 2605 or STAT 3502) and fourth-year status in Engineering, or permission of the Department
+SYSC 3600;MATH 1005 and ECOR 1101 or PHYS 1001
+SYSC 3601;ELEC 2607 and SYSC 2003 or permission of the department
+SYSC 3610;MATH 3705 and ECOR 1101 and enrolment Biomedical n Electrical Engineering or enrolment Biomedical n Mechanical Engineering
+SYSC 4001;SYSC 2002 or  SYSC 2100 and SYSC 2003 or SYSC 3006
+SYSC 4005;STAT 2605 or STAT 3502 and fourth-year status in Engineering or permission of the Department
 SYSC 4101;SYSC 3100 or SYSC 3120 or SYSC 3020
-SYSC 4102;STAT 3502, and (SYSC 3001 or SYSC 4001)
+SYSC 4102;STAT 3502 and SYSC 3001 or SYSC 4001
 SYSC 4105;fourth-year status in Engineering
-SYSC 4106;SYSC 3100 or SYSC 3020 or SYSC 3120 (SYSC 3020 and SYSC 3120 can be taken concurrently) or COMP 3004
-SYSC 4107;fourth-year status in Engineering or Computer Science
+SYSC 4106;SYSC 3100 or SYSC 3020 or SYSC 3120 SYSC 3020 and SYSC 3120 can be taken concurrently or COMP 3004
+SYSC 4107;fourth-year status in Engineering
 SYSC 4120;SYSC 3120 or SYSC 3100
 SYSC 4201;ELEC 3605 or SYSC 3203
-SYSC 4202;fourth-year status in Biomedical and Electrical or Biomedical and Mechanical Engineering
-SYSC 4203;(SYSC 3600 or SYSC 3500 or SYSC 3610) and (ELEC 2507 or ELEC 3605 or SYSC 3203) and fourth-year status in Biomedical and Electrical Engineering or fourth-year status in Biomedical and Mechanical Engineering
+SYSC 4202;fourth-year status in Biomedical n Electrical Engineering or fourth-year status in Biomedical n Mechanical Engineering
+SYSC 4203;SYSC 3600 or SYSC 3500 or SYSC 3610 and ELEC 2507 or ELEC 3605 or SYSC 3203 and fourth-year status in Biomedical n Electrical Engineering or fourth-year status in Biomedical n Mechanical Engineering
 SYSC 4205;MATH 3705 and fourth-year status in Engineering
 SYSC 4405;SYSC 3500 or SYSC 3600 or SYSC 3610
-SYSC 4502;SYSC 4602 and (SYSC 2004 or SYSC 2100), and fourth year status in Electrical Engineering, Computer Systems Engineering, or Software Engineering, or third year status in Communications Engineering
+SYSC 4502;SYSC 4602 and SYSC 2004 or SYSC 2100 and fourth year status in Electrical Engineering or fourth year status in Computer Systems Engineering or fourth year status in Software Engineering or third year status in Communications Engineering
 SYSC 4504;SYSC 2004 or SYSC 2100
-SYSC 4505;MATH 2004 and (SYSC 3500 or SYSC 3600 or SYSC 3610)
-SYSC 4507;ELEC 2607 and (SYSC 2001 or  SYSC 3006)
+SYSC 4505;MATH 2004 and SYSC 3500 or SYSC 3600 or SYSC 3610
+SYSC 4507;ELEC 2607 and SYSC 2001 or  SYSC 3006
 SYSC 4600;SYSC 3501 and STAT 3502
-SYSC 4602;STAT 2605 or STAT 3502 (may be taken concurrently), and fourth-year status in Biomedical and Electrical, Electrical, Computer Systems, Software, or Sustainable and Renewable Energy Engineering, or third-year status in Communications Engineering
+SYSC 4602;STAT 2605 or STAT 3502 may be taken concurrently and fourth-year status in Biomedical n Electrical Engineering or Electrical Engineering or Computer Systems Engineering or Software Engineering or Sustainable n Renewable Energy Engineering or third-year status in Communications Engineering
 SYSC 4604;SYSC 3503
 SYSC 4607;SYSC 3501 or SYSC 3503
-SYSC 4700;fourth-year status in Electrical, Computer Systems or Communications Engineering, and (SYSC 3501 or SYSC 3503)
+SYSC 4700;fourth-year status in Electrical Engineering or Computer Systems Engineering or Communications Engineering and SYSC 3501 or SYSC 3503
 SYSC 4701;fourth-year status in Communications Engineering
-SYSC 4805;SYSC 3303 and (SYSC 3020 or SYSC 4800) and fourth-year status in Computer Systems Engineering (students are encouraged to enrol in both SYSC 4800 AND 4805 in the same academic year)
+SYSC 4805;SYSC 3303 and SYSC 3020 or SYSC 4800 and fourth-year status in Computer Systems Engineering
 SYSC 4806;SYSC 4800 or SYSC 4120 and fourth-year status in Software Engineering
 SYSC 4906;permission of the Department
-SYSC 4907;fourth-year status in Engineering and ECOR 4995 (may be taken concurrently)
-SYSC 4917;fourth-year standing in Biomedical and Electrical Engineering and ECOR 4995 (may be taken concurrently)
-SYSC 4927;fourth-year status in Software Engineering and ECOR 4995 (may be taken concurrently)
-SYSC 4937;fourth-year status in Communications Engineering and ECOR 4995 (may be taken concurrently)ECOR 1010;onal credit for ECOR 1000
+SYSC 4907;fourth-year status in Engineering and ECOR 4995 may be taken concurrently
+SYSC 4917;fourth-year status in Biomedical n Electrical Engineering and ECOR 4995 may be taken concurrently
+SYSC 4927;fourth-year status in Software Engineering and ECOR 4995 may be taken concurrently
+SYSC 4937;fourth-year status in Communications Engineering and ECOR 4995 may be taken concurrently
 ECOR 1010;
 ECOR 1101;MATH 1004 and MATH 1104
 ECOR 1606;
-ECOR 2606;MATH 1005 and (ECOR 1606 or SYSC 1005) and (ECOR 1010 or ELEC 1908)
+ECOR 2606;MATH 1005 and ECOR 1606 or SYSC 1005 and ECOR 1010 or ELEC 1908
 ECOR 3800;third-year status in Engineering
 ECOR 4995;fourth-year status in Engineering
