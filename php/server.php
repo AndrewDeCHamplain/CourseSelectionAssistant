@@ -199,10 +199,11 @@
 								$query = mysql_query("SELECT * FROM falldata WHERE subj='{$programArray[$semIdx][$courseIdx]->SUBJ}' AND 
 									crse='{$programArray[$semIdx][$courseIdx]->CRSE}' LIMIT 1") or die(mysql_error());
 								if(mysql_fetch_array($query) !== false){
-									//if(checkPrereqs($programArray[$semIdx][$courseIdx]->SUBJ." ".$programArray[$semIdx][$courseIdx]->CRSE)){
+									if(checkPrereqs($programArray[$semIdx][$courseIdx]->SUBJ." ".$programArray[$semIdx][$courseIdx]->CRSE, 
+									$schedule, $coursedataarray, $programArray, $yearstanding, $completedcourses, $program)){
 										array_push($schedule[$fallId], $programArray[$semIdx][$courseIdx]);
 										$coursedataarray[$semIdx][$courseIdx] = 2;
-									//}
+									}
 								}
 								
 							}	
@@ -219,10 +220,11 @@
 								$query = mysql_query("SELECT * FROM winterdata WHERE subj='{$programArray[$semIdx][$courseIdx]->SUBJ}' AND 
 									crse='{$programArray[$semIdx][$courseIdx]->CRSE}' LIMIT 1") or die(mysql_error());
 								if(mysql_fetch_array($query) !== false){
-									//if(checkPrereqs($programArray[$semIdx][$courseIdx]->SUBJ." ".$programArray[$semIdx][$courseIdx]->CRSE)){
+									if(checkPrereqs($programArray[$semIdx][$courseIdx]->SUBJ." ".$programArray[$semIdx][$courseIdx]->CRSE, 
+									$schedule, $coursedataarray, $programArray, $yearstanding, $completedcourses, $program)){
 										array_push($schedule[$winterId], $programArray[$semIdx][$courseIdx]);
 										$coursedataarray[$semIdx][$courseIdx] = 2;
-									//}
+									}
 								}
 							}
 						}
@@ -230,9 +232,9 @@
 				
 			}
 		}
-		$prereqtest = checkPrereqs("SYSC 4005", $schedule, $coursedataarray, $programArray, $yearstanding, $completedcourses, $program);
-		$prestring = ($prereqtest)?"true":"false";
-		$result= "Program = ".$program."|||||||required prereqs =".$prestring."||||yearstanding= " .$yearstanding."||||||<schedule><fall>";
+		//$prereqtest = checkPrereqs("SYSC 3203", $schedule, $coursedataarray, $programArray, $yearstanding, $completedcourses, $program);
+		//$prestring = ($prereqtest)?"true":"false";
+		$result= "<schedule><fall>";
 		//while ( ($row = $rows->fetch_object() ) ){
 		for($fallIdx = 0; $fallIdx<sizeof($schedule[$fallId]); $fallIdx++){
 			$result .= "<course>".$schedule[$fallId][$fallIdx]->SUBJ.$schedule[$fallId][$fallIdx]->CRSE."</course>";
@@ -372,7 +374,7 @@
 			$currentBool =  false;
 		}
 		
-		if(strpos($tempProgram[1],"Engineering")!==false)
+		if(strpos($tempProgram[1],"Engineering")<3 && strpos($tempProgram[1],"Engineering")>-1 )
 		{
 			return $currentBool;
 		}
@@ -382,6 +384,15 @@
 		}
 		
 		return $currentBool;
+	}
+	function checkEnrolment($prereqinfo, $program)
+	{
+		if(strpos($prereqinfo, $program)!==false)
+		{
+			return true;
+		}
+		
+		return false;
 	}
 	function executePrereqCheck($requirementsArray, $yearstanding, $completedcourses, $program)
 	{
@@ -401,6 +412,13 @@
 			else if(strpos($requirementsArray[$i], "status")!==false )
 			{
 				if(checkStanding($requirementsArray[$i], $yearstanding, $program) === false)
+				{
+					return false;
+				}
+			}
+			else if(strpos($requirementsArray[$i], "enrolment")!==false )
+			{
+				if(checkEnrolment($requirementsArray[$i], $program) === false)
 				{
 					return false;
 				}
@@ -438,6 +456,13 @@
 			if(strpos($requirementsArray[$i], "status")!==false )
 			{
 				if(checkStanding($requirementsArray[$i], $yearstanding, $program) === true)
+				{
+					return true;
+				}
+			}
+			else if(strpos($requirementsArray[$i], "enrolment")!==false )
+			{
+				if(checkEnrolment($requirementsArray[$i], $program) === true)
 				{
 					return true;
 				}
