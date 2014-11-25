@@ -200,7 +200,7 @@
 									crse='{$programArray[$semIdx][$courseIdx]->CRSE}' LIMIT 1") or die(mysql_error());
 								if(mysql_fetch_array($query) !== false){
 									if(checkPrereqs($programArray[$semIdx][$courseIdx]->SUBJ." ".$programArray[$semIdx][$courseIdx]->CRSE, 
-									$schedule, $coursedataarray, $programArray, $yearstanding, $completedcourses, $program)){
+									$schedule, $coursedataarray, $programArray, $yearstanding, $completedcourses, $program, false)){
 										array_push($schedule[$fallId], $programArray[$semIdx][$courseIdx]);
 										$coursedataarray[$semIdx][$courseIdx] = 2;
 									}
@@ -221,7 +221,7 @@
 									crse='{$programArray[$semIdx][$courseIdx]->CRSE}' LIMIT 1") or die(mysql_error());
 								if(mysql_fetch_array($query) !== false){
 									if(checkPrereqs($programArray[$semIdx][$courseIdx]->SUBJ." ".$programArray[$semIdx][$courseIdx]->CRSE, 
-									$schedule, $coursedataarray, $programArray, $yearstanding, $completedcourses, $program)){
+									$schedule, $coursedataarray, $programArray, $yearstanding, $completedcourses, $program, true)){
 										array_push($schedule[$winterId], $programArray[$semIdx][$courseIdx]);
 										$coursedataarray[$semIdx][$courseIdx] = 2;
 									}
@@ -233,24 +233,54 @@
 			}
 		}
 	
-		//$prereqtest = checkPrereqs("SYSC 3203", $schedule, $coursedataarray, $programArray, $yearstanding, $completedcourses, $program);
-		//$prestring = ($prereqtest)?"true":"false";
 		$schedule = getNumberOfOccurences($schedule);
-	
-		$result= "<schedule><fall>";
-		//while ( ($row = $rows->fetch_object() ) ){
-		for($fallIdx = 0; $fallIdx<sizeof($schedule[$fallId]); $fallIdx++){
-			$result .= "<course>".$schedule[$fallId][$fallIdx]->SUBJ.$schedule[$fallId][$fallIdx]->CRSE."</course>";
+		$falltimetable = array();
+		$fallsemester = schedule($schedule, $falltimetable, 0, $fallId, 0);
+		$wintertimetable = array();
+		$wintersemester = schedule($schedule, $wintertimetable, 0, $winterId, 0);
+					
+		$result = "<schedule><fall>";
+		
+		for($fallIdx = 0; $fallIdx<sizeof($fallsemester); $fallIdx++){
+			$result .= "<course>".$fallsemester[$fallIdx]['subj'].$fallsemester[$fallIdx]['crse']."  ".$fallsemester[$fallIdx]['seq']
+					."||Days: ".$fallsemester[$fallIdx]['day']
+					."||StartTime: ".$fallsemester[$fallIdx]['starttime']
+					."   EndTime: ".$fallsemester[$fallIdx]['endtime']."</course>";
 		}
 		$result .= "</fall><winter>";
-		for($winterIdx = 0; $winterIdx<sizeof($schedule[$winterId]); $winterIdx++){
-			$result .= "<course>".$schedule[$winterId][$winterIdx]->SUBJ.$schedule[$winterId][$winterIdx]->CRSE."</course>";
+		
+		for($winterIdx = 0; $winterIdx<sizeof($wintersemester); $winterIdx++){
+			$result .= "<course>".$wintersemester[$winterIdx]['subj'].$wintersemester[$winterIdx]['crse']."  ".$wintersemester[$winterIdx]['seq']
+					."||Days: ".$wintersemester[$winterIdx]['day']
+					."||StartTime: ".$wintersemester[$winterIdx]['starttime']
+					."   EndTime: ".$wintersemester[$winterIdx]['endtime']."</course>";
 		}
 		$result .= "</winter></schedule>";
 		
 		header("content-type: text/xml");
 		echo $result;
 	}
+	function numberOfSections($semester, $subj, $crse)
+	{
+		$semesterstring = "";
+		if($semester === 0)
+		{
+			$semesterstring = "falldata";
+		}
+		else
+		{
+			$semesterstring = "winterdata";
+		}
+		
+		$numberofresults = 0;
+		$query = mysql_query("SELECT * FROM ".$semesterstring." WHERE subj='$subj' AND crse='$crse' AND type='LEC'") or die(mysql_error());
+		while(mysql_fetch_array($query) !== false)
+		{
+			$numberofresults = $numberofresults+1;
+		}	 
+		return $numberofresults;
+	}
+	
 	//sort array from least occurences to most to allow for easier time table creation
 	function getNumberOfOccurences($schedule)
 	{
@@ -261,28 +291,10 @@
 		for($i = 0;$i<sizeof($schedule);$i++)
 		{
 			for($j = 0;$j<sizeof($schedule[$i]);$j++)
-			{
-				if($i === $fallId)
-				{
-					$numberofresults = 0;
-					$query = mysql_query("SELECT * FROM falldata WHERE subj='{$schedule[$i][$j]->SUBJ}' AND crse='{$schedule[$i][$j]->CRSE}' AND type='LEC'") or die(mysql_error());
-					while(mysql_fetch_array($query) !== false)
-					{
-						$numberofresults = $numberofresults+1;
-					}	 
-					array_push($scheduleOrganized[$i], $numberofresults);
-				}	
-				else if($i === $winterId)
-				{
-					$numberofresults = 0;
-					$query = mysql_query("SELECT * FROM winterdata WHERE subj='{$schedule[$i][$j]->SUBJ}' AND crse='{$schedule[$i][$j]->CRSE}'AND type='LEC'") or die(mysql_error());
-					while(mysql_fetch_array($query) !== false)
-					{
-						$numberofresults = $numberofresults+1;
-					}
-					array_push($scheduleOrganized[$i], $numberofresults);
-				}	
 			
+			{
+				array_push($scheduleOrganized[$i], numberOfSections($i, $schedule[$i][$j]->SUBJ, $schedule[$i][$j]->CRSE));
+
 			}
 		}
 		$temp = 0;
@@ -311,17 +323,94 @@
 		return $schedule;
 		
 	}
-	function schedule($coursedata)
+	function schedule($schedule, $timetable, $numberofclasses, $semester, $numberofcredits)
 	{
-		$query = mysql_query("SELECT * FROM userslist WHERE login='{$login}'") or die(mysql_error());
-		$row = mysql_fetch_array($query);
-		$stream = $row['stream'];
+			$semesterstring = "";
+			if($semester === 0)
+			{
+				$semesterstring = "falldata";
+			}
+			else
+			{
+				$semesterstring = "winterdata";
+			}
+			
+			
+			
+			for($j = $numberofclasses;$j<sizeof($schedule[ $semester]);$j++)
+			{
+				
+				$query = mysql_query("SELECT * FROM ".$semesterstring." WHERE subj='{$schedule[ $semester][$j]->SUBJ}' AND crse='{$schedule[$semester][$j]->CRSE}' AND type='LEC'") or die(mysql_error());
+				$class = mysql_fetch_array($query); 
+				$loop = true;
+				while($class !== false && $loop === true)
+				{
+					if(hasConflicts($timetable, $class) )
+					{
+						$labs = hasLabs($class, $timetable, $semester, $semesterstring);
+						if($labs !== false)
+						{
+							$timetable = $labs;
+							array_push($timetable, $class);
+							$numberofcredits = $numberofcredits+.5;
+							if($numberofcredits<2.5 )
+							{
+								$loop = false;
+							}
+							else
+							{
+								return $timetable;
+							}
+						}
+									
+					}
+	
+					
+						//$timetable = schedule($schedule, $timetable, $j+1, $semester);
+					
+					
+					$class = mysql_fetch_array($query); 
+				}	 
+					
+			}
 		
+		return $timetable;
+	}
+
+	function hasLabs($class, $timetable, $semester, $semesterstring)
+	{
+		$sec = $class['seq'];
+		$subj = $class['subj'];
+		$crse = $class['crse'];
+		$query = mysql_query("SELECT * FROM ".$semesterstring." WHERE subj='{$subj}' AND crse='{$crse}'") or die(mysql_error());
 		
+		$labs = mysql_fetch_array($query);
+		if($labs === false)
+		{
+			return $timetable;
+		}
+		$loop = true;
+		while($labs !== false )
+		{
+			if(strlen($labs['seq'])>1 )
+			{
+				if(strpos($labs['seq'], $sec)!==false)
+				{
+					if(hasConflicts($timetable, $labs) )
+					{
+						
+						array_push($timetable, $labs);
+						
+						
+						return $timetable;
+						
+					}
+				}
+			}
+			$labs = mysql_fetch_array($query); 			
+		}	
 		
-		
-		
-		return "testing";
+		return false;
 	}
 	function getYearStanding($coursedataarray)
 	{
@@ -457,7 +546,7 @@
 		
 		return false;
 	}
-	function executePrereqCheck($requirementsArray, $yearstanding, $completedcourses, $program)
+	function executePrereqCheck($requirementsArray, $yearstanding, $completedcourses, $program, $schedule, $isWinter)
 	{
 		for($i = 0;$i<sizeof($requirementsArray);$i++)
 		{
@@ -466,7 +555,7 @@
 				//function here
 				
 				$ortemp = explode("or", $requirementsArray[$i]);
-				if(!executePrereqOrCheck($ortemp, $yearstanding, $completedcourses, $program))
+				if(!executePrereqOrCheck($ortemp, $yearstanding, $completedcourses, $program, $schedule, $isWinter))
 				{
 					return false;
 				}
@@ -500,7 +589,20 @@
 							$matched = true;
 						}
 						
+						
 					}
+					if($isWinter)
+					{
+						for($j = 0;$j<sizeof($schedule[0]);$j++)
+						{
+						
+							if( $schedule[0][$j]->SUBJ." ".$schedule[0][$j]->CRSE === $tempout[0])
+							{
+								$matched = true;
+							}
+						}
+					}
+					
 					if(!$matched)
 					{
 						return false;
@@ -512,7 +614,7 @@
 		}
 		return true;
 	}
-	function executePrereqOrCheck($requirementsArray, $yearstanding, $completedcourses, $program)
+	function executePrereqOrCheck($requirementsArray, $yearstanding, $completedcourses, $program, $schedule, $isWinter)
 	{
 		for($i = 0;$i<sizeof($requirementsArray);$i++)
 		{
@@ -542,6 +644,19 @@
 						{
 							return true;
 						}
+						
+						
+					}
+					if($isWinter)
+					{
+						for($j = 0;$j<sizeof($schedule[0]);$j++)
+						{
+						
+							if( $schedule[0][$j]->SUBJ." ".$schedule[0][$j]->CRSE=== $tempout[0])
+							{
+								return  true;
+							}
+						}
 					}
 				}
 			}
@@ -551,7 +666,7 @@
 		
 		return false;
 	}
-	function checkPrereqs($class, $schedule, $coursedataarray, $programArray, $yearstanding, $completedcourses, $program)
+	function checkPrereqs($class, $schedule, $coursedataarray, $programArray, $yearstanding, $completedcourses, $program, $isWinter)
 	{
 		$query = mysql_query("SELECT * FROM prereqdata WHERE course='{$class}'") or die(mysql_error());
 		$row = mysql_fetch_array($query);
@@ -559,7 +674,7 @@
 		
 		$andtemp = explode("and", $prereqinfo);
 		
-		return executePrereqCheck($andtemp, $yearstanding, $completedcourses,$program);
+		return executePrereqCheck($andtemp, $yearstanding, $completedcourses,$program, $schedule, $isWinter);
 	
 	}
 	
@@ -570,8 +685,13 @@
 		$newcoursedayarray = str_split($newcourseday, 1);
 		if(strlen($newcourseday) == 1)
 		{
-			$newcoursedayarray[1] = "";
+			array_push($newcoursedayarray, " " );
 		}
+		else if(strlen($newcourseday) == 0)
+		{
+			return true;
+		}
+			
 		$newcoursestarttime = intval($newcourse['starttime']);
 		$newcourseendtime = intval($newcourse['endtime']);
 		
@@ -581,7 +701,13 @@
 			$oldcoursedayarray = str_split($oldcourseday, 1);
 			if(strlen($oldcourseday) == 1)
 			{
-				$oldcoursedayarray[1] = "";
+				array_push($oldcoursedayarray, " " );
+				
+			}
+			else if(strlen($oldcourseday) == 0)
+			{
+				array_push($oldcoursedayarray, " " );
+				array_push($oldcoursedayarray, " " );
 			}
 			$oldcoursestarttime = intval($arrayofcourses[$i]['starttime']);
 			$oldcourseendtime = intval($arrayofcourses[$i]['endtime']);
