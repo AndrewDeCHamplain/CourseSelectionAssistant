@@ -232,8 +232,11 @@
 				
 			}
 		}
+	
 		//$prereqtest = checkPrereqs("SYSC 3203", $schedule, $coursedataarray, $programArray, $yearstanding, $completedcourses, $program);
 		//$prestring = ($prereqtest)?"true":"false";
+		$schedule = getNumberOfOccurences($schedule);
+	
 		$result= "<schedule><fall>";
 		//while ( ($row = $rows->fetch_object() ) ){
 		for($fallIdx = 0; $fallIdx<sizeof($schedule[$fallId]); $fallIdx++){
@@ -247,6 +250,66 @@
 		
 		header("content-type: text/xml");
 		echo $result;
+	}
+	//sort array from least occurences to most to allow for easier time table creation
+	function getNumberOfOccurences($schedule)
+	{
+		$fallId = 0;
+		$winterId = 1;
+		$scheduleOrganized = array(array(), array());
+			
+		for($i = 0;$i<sizeof($schedule);$i++)
+		{
+			for($j = 0;$j<sizeof($schedule[$i]);$j++)
+			{
+				if($i === $fallId)
+				{
+					$numberofresults = 0;
+					$query = mysql_query("SELECT * FROM falldata WHERE subj='{$schedule[$i][$j]->SUBJ}' AND crse='{$schedule[$i][$j]->CRSE}' AND type='LEC'") or die(mysql_error());
+					while(mysql_fetch_array($query) !== false)
+					{
+						$numberofresults = $numberofresults+1;
+					}	 
+					array_push($scheduleOrganized[$i], $numberofresults);
+				}	
+				else if($i === $winterId)
+				{
+					$numberofresults = 0;
+					$query = mysql_query("SELECT * FROM winterdata WHERE subj='{$schedule[$i][$j]->SUBJ}' AND crse='{$schedule[$i][$j]->CRSE}'AND type='LEC'") or die(mysql_error());
+					while(mysql_fetch_array($query) !== false)
+					{
+						$numberofresults = $numberofresults+1;
+					}
+					array_push($scheduleOrganized[$i], $numberofresults);
+				}	
+			
+			}
+		}
+		$temp = 0;
+		$tempsubject = $schedule[0][0]; 
+		for($semester = 0; $semester<sizeof($scheduleOrganized);$semester++)
+		{
+			for ( $i = 0; $i < sizeof($scheduleOrganized[$semester])-1; $i++)
+			{
+				while($scheduleOrganized[$semester][$i] > $scheduleOrganized[$semester][$i+1])
+				{
+					$tempsubject = $schedule[$semester][$i];
+					$schedule[$semester][$i]=$schedule[$semester][$i+1];
+					$schedule[$semester][$i+1]=$tempsubject;
+					
+					$temp = $scheduleOrganized[$semester][$i];
+					$scheduleOrganized[$semester][$i]=$scheduleOrganized[$semester][$i+1];
+					$scheduleOrganized[$semester][$i+1]=$temp;
+					$i= 0;
+				}
+			}
+		
+		}
+		
+	
+	
+		return $schedule;
+		
 	}
 	function schedule($coursedata)
 	{
@@ -374,7 +437,7 @@
 			$currentBool =  false;
 		}
 		
-		if(strpos($tempProgram[1],"Engineering")<3 && strpos($tempProgram[1],"Engineering")>-1 )
+		if(strpos($tempProgram[1],"Engineering")<5 && strpos($tempProgram[1],"Engineering")>-1 )
 		{
 			return $currentBool;
 		}
