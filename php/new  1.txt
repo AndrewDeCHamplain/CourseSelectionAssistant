@@ -1,0 +1,77 @@
+function schedule($schedule, $timetable, $numberofclasses, $semester, $numberofcredits)
+	{
+			$semesterstring = "";
+			if($semester === 0)
+			{
+				$semesterstring = "falldata";
+			}
+			else
+			{
+				$semesterstring = "winterdata";
+			}
+			
+			
+			
+			for($j = $numberofclasses;$j<sizeof($schedule[ $semester]);$j++)
+			{
+				
+				$query = mysql_query("SELECT * FROM ".$semesterstring." WHERE subj='{$schedule[ $semester][$j]->SUBJ}' AND crse='{$schedule[$semester][$j]->CRSE}' AND type='LEC'") or die(mysql_error());
+				$class = mysql_fetch_array($query); 
+				while($class !== false) // iterates through all sections of the specified class
+				{
+					if(hasConflicts($timetable, $class) ) // if this class has no conflict do this
+					{
+						$labs = hasLabs($class, $timetable, $semester, $semesterstring); // returns false if there is no lab, returns a new time table with a lab in it if there is
+						if($labs !== false) //if there is a lab
+						{
+							$timetable = $labs;  // set timetable to the new timetable	
+							array_push($timetable, $class); //push the specified class into the array
+							$numberofcredits = $numberofcredits+.5; 
+							if($numberofcredits<2.5 )
+			
+							}
+							else
+							{
+								return $timetable;
+							}
+						}
+									
+					}//else do nothing
+	
+					
+						//$timetable = schedule($schedule, $timetable, $j+1, $semester);
+					
+					
+					$class = mysql_fetch_array($query); 
+				}	 
+					
+			}
+		
+		return $timetable;
+	}
+	
+	
+	
+	
+	function recursiveTry2($schedule, $query, $timetable, $semester, $semesterstring)
+	{
+		$class = mysql_fetch_array($query); 
+		if($class !== false)
+		{
+			if(hasConflicts($timetable, $class)) // if this class has no conflict do this
+			{
+				$labs = hasLabs($class, $timetable, $semester, $semesterstring); // returns false if there is no lab that fits, returns a new time table with a lab in it if there is
+				if($labs !== false) //if there is a lab that fits or no lab
+				{
+					$timetable = $labs;  // set timetable to the new timetable	
+					array_push($timetable, $class); //push the specified class into the array
+					return $timetable;
+				}
+							
+			}//else do nothing		
+			return recursiveTry2($schedule, $query, $timetable, $semester, $semesterstring);
+		}
+		
+		
+		return false;
+	}

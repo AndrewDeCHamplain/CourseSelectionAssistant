@@ -235,25 +235,45 @@
 	
 		$schedule = getNumberOfOccurences($schedule);
 		$falltimetable = array();
-		$fallsemester = schedule($schedule, $falltimetable, 0, $fallId, 0);
+	//	$fallsemester = schedule($schedule, $falltimetable, 0, $fallId, 0);
 		$wintertimetable = array();
-		$wintersemester = schedule($schedule, $wintertimetable, 0, $winterId, 0);
-					
+	//	$wintersemester = schedule($schedule, $wintertimetable, 0, $winterId, 0);
+		$fallsemester =  scheduleTimetable($schedule, $falltimetable, 0);
+		$wintersemester =  scheduleTimetable($schedule, $wintertimetable, 1);
 		$result = "<schedule><fall>";
 		
-		for($fallIdx = 0; $fallIdx<sizeof($fallsemester); $fallIdx++){
-			$result .= "<course>".$fallsemester[$fallIdx]['subj'].$fallsemester[$fallIdx]['crse']."  ".$fallsemester[$fallIdx]['seq']
-					."||Days: ".$fallsemester[$fallIdx]['day']
-					."||StartTime: ".$fallsemester[$fallIdx]['starttime']
-					."   EndTime: ".$fallsemester[$fallIdx]['endtime']."</course>";
+		for($fallIdx = 0; $fallIdx<sizeof($schedule[0]); $fallIdx++){
+			$result .= "<course>".$schedule[0][$fallIdx]->SUBJ." ".$schedule[0][$fallIdx]->CRSE."</course>";
+		}
+		for($i = 0;$i<sizeof($fallsemester);$i++)
+		{
+				$result .= "<course>Time Table ".$i ."</course>";
+				for($fallIdx = 0; $fallIdx<sizeof($fallsemester[$i]); $fallIdx++){
+					$result .= "<course>".$fallsemester[$i][$fallIdx]['subj'].$fallsemester[$i][$fallIdx]['crse']."  ".$fallsemester[$i][$fallIdx]['seq']
+							."||Days: ".$fallsemester[$i][$fallIdx]['day']
+							."||StartTime: ".$fallsemester[$i][$fallIdx]['starttime']
+							."   EndTime: ".$fallsemester[$i][$fallIdx]['endtime']."</course>";
+				}
+				
+			
 		}
 		$result .= "</fall><winter>";
-		
-		for($winterIdx = 0; $winterIdx<sizeof($wintersemester); $winterIdx++){
-			$result .= "<course>".$wintersemester[$winterIdx]['subj'].$wintersemester[$winterIdx]['crse']."  ".$wintersemester[$winterIdx]['seq']
-					."||Days: ".$wintersemester[$winterIdx]['day']
-					."||StartTime: ".$wintersemester[$winterIdx]['starttime']
-					."   EndTime: ".$wintersemester[$winterIdx]['endtime']."</course>";
+				
+		for($winterIdx = 0; $winterIdx<sizeof($schedule[1]); $winterIdx++){
+			$result .= "<course>".$schedule[1][$winterIdx]->SUBJ." ".$schedule[1][$winterIdx]->CRSE."</course>";
+		}
+	
+		for($i = 0;$i<sizeof($wintersemester);$i++)
+		{
+				$result .= "<course>Time Table ". $i ."</course>";
+				for($winterIdx = 0; $winterIdx<sizeof($wintersemester[$i]); $winterIdx++){
+					$result .= "<course>".$wintersemester[$i][$winterIdx]['subj'].$wintersemester[$i][$winterIdx]['crse']."  ".$wintersemester[$i][$winterIdx]['seq']
+							."||Days: ".$wintersemester[$i][$winterIdx]['day']
+							."||StartTime: ".$wintersemester[$i][$winterIdx]['starttime']
+							."   EndTime: ".$wintersemester[$i][$winterIdx]['endtime']."</course>";
+				}
+				
+			
 		}
 		$result .= "</winter></schedule>";
 		
@@ -291,7 +311,6 @@
 		for($i = 0;$i<sizeof($schedule);$i++)
 		{
 			for($j = 0;$j<sizeof($schedule[$i]);$j++)
-			
 			{
 				array_push($scheduleOrganized[$i], numberOfSections($i, $schedule[$i][$j]->SUBJ, $schedule[$i][$j]->CRSE));
 
@@ -323,7 +342,8 @@
 		return $schedule;
 		
 	}
-	function schedule($schedule, $timetable, $numberofclasses, $semester, $numberofcredits)
+
+	function scheduleTimetable($schedule, $timetable, $semester)
 	{
 			$semesterstring = "";
 			if($semester === 0)
@@ -334,84 +354,148 @@
 			{
 				$semesterstring = "winterdata";
 			}
+			$alltimetables = array();
+			$timetables = array();
+			$alltimetables = getClass($semester, $semesterstring, $schedule, $timetable, $alltimetables);
 			
-			
-			
-			for($j = $numberofclasses;$j<sizeof($schedule[ $semester]);$j++)
+			$result = array();
+			$resultindex = array();
+			for($i = 0;$i<sizeof($alltimetables);$i++)
 			{
-				
-				$query = mysql_query("SELECT * FROM ".$semesterstring." WHERE subj='{$schedule[ $semester][$j]->SUBJ}' AND crse='{$schedule[$semester][$j]->CRSE}' AND type='LEC'") or die(mysql_error());
-				$class = mysql_fetch_array($query); 
-				$loop = true;
-				while($class !== false && $loop === true)
-				{
-					if(hasConflicts($timetable, $class) )
-					{
-						$labs = hasLabs($class, $timetable, $semester, $semesterstring);
-						if($labs !== false)
-						{
-							$timetable = $labs;
-							array_push($timetable, $class);
-							$numberofcredits = $numberofcredits+.5;
-							if($numberofcredits<2.5 )
-							{
-								$loop = false;
-							}
-							else
-							{
-								return $timetable;
-							}
-						}
-									
-					}
-	
-					
-						//$timetable = schedule($schedule, $timetable, $j+1, $semester);
-					
-					
-					$class = mysql_fetch_array($query); 
-				}	 
-					
+				array_push($resultindex, numberOfLecturesInSemester($alltimetables[$i]));
+			
 			}
-		
-		return $timetable;
-	}
-
-	function hasLabs($class, $timetable, $semester, $semesterstring)
-	{
-		$sec = $class['seq'];
-		$subj = $class['subj'];
-		$crse = $class['crse'];
-		$query = mysql_query("SELECT * FROM ".$semesterstring." WHERE subj='{$subj}' AND crse='{$crse}'") or die(mysql_error());
-		
-		$labs = mysql_fetch_array($query);
-		if($labs === false)
-		{
-			return $timetable;
-		}
-		$loop = true;
-		while($labs !== false )
-		{
-			if(strlen($labs['seq'])>1 )
+			//*********************************************
+			
+			
+			for ( $i = 0; $i < sizeof($resultindex)-1; $i++)
 			{
-				if(strpos($labs['seq'], $sec)!==false)
+				while($resultindex[$i] < $resultindex[$i+1])
 				{
-					if(hasConflicts($timetable, $labs) )
-					{
-						
-						array_push($timetable, $labs);
-						
-						
-						return $timetable;
-						
-					}
+					$tempsubject = $alltimetables[$i];
+					$alltimetables[$i]=$alltimetables[$i+1];
+					$alltimetables[$i+1]=$tempsubject;
+					
+					$temp = $resultindex[$i];
+					$resultindex[$i]=$resultindex[$i+1];
+					$resultindex[$i+1]=$temp;
+					$i= 0;
 				}
 			}
-			$labs = mysql_fetch_array($query); 			
-		}	
+			
+			
 		
-		return false;
+	
+			
+			//**********************************************
+			$result = array();
+			
+			for($i = 0;$i<5 &&$i<sizeof($alltimetables);$i++)
+			{
+				array_push($result, $alltimetables[$i]);
+			}
+			return $result;
+			
+			
 	}
+	function getClass($semester, $semesterstring, $schedule, $timetable, $alltimetables)
+	{
+		$count = 0;
+		for($i = 0;$i<sizeof($timetable);$i++)
+		{
+			if($timetable[$i]['type'] === "LEC")
+			{
+				$count = $count+1;
+			}
+		}
+		if($count === sizeof($schedule[$semester]))
+		{
+			array_push($alltimetables, $timetable);
+			return $alltimetables;
+		}
+	
+		$query = mysql_query("SELECT * FROM ".$semesterstring." WHERE subj='{$schedule[ $semester][$count]->SUBJ}' AND crse='{$schedule[$semester][ $count ]->CRSE}' AND type='LEC'") or die(mysql_error());
+		$class = mysql_fetch_array($query); 
+		while($class !== false)
+		{
+			if(hasConflicts($timetable, $class)) // if this class has no conflict do this
+			{
+				
+				//$labs = hasLabs($class, $timetable, $semester, $semesterstring); // returns false if there is no lab that fits, returns a new time table with a lab in it if there is
+				//********************************************************************************
+				$sec = $class['seq'];
+				$subj = $class['subj'];
+				$crse = $class['crse'];
+				$query = mysql_query("SELECT * FROM ".$semesterstring." WHERE subj='{$subj}' AND crse='{$crse}' AND type!='LEC'") or die(mysql_error());
+				$labs = mysql_fetch_array($query);
+				$labclass = $labs;
+				if($labs === false)
+				{
+					$temptable = $timetable;
+					array_push($temptable, $class); //push the specified class into the array
+					array_push($alltimetables, $temptable);
+					$alltimetables = getClass($semester, $semesterstring, $schedule, $temptable, $alltimetables);
+				}
+				
+				while($labs !== false )
+				{
+					if(strlen($labs['seq'])>1 )
+					{
+						if(strpos($labs['seq'], $sec)!==false)
+						{
+							if(hasConflicts($timetable, $labs) )
+							{
+								
+								$temptable = $timetable;
+								array_push($temptable, $labs); 
+								array_push($temptable, $class); //push the specified class into the array
+								array_push($alltimetables, $temptable);
+								$alltimetables = getClass($semester, $semesterstring, $schedule, $temptable, $alltimetables);
+								
+							}
+						}
+						
+						if(strpos($labs['seq'], "L")!==false || strpos($labs['seq'], "G")!==false )
+						{
+							
+							if(hasConflicts($timetable, $labs) )
+							{
+								
+								$temptable = $timetable;
+								array_push($temptable, $labs); 
+								array_push($temptable, $class); //push the specified class into the array
+								array_push($alltimetables, $temptable);
+								$alltimetables = getClass($semester, $semesterstring, $schedule, $temptable, $alltimetables);
+								
+							}
+						}
+					}
+					$labs = mysql_fetch_array($query); 			
+				}	
+			
+							
+			}
+			
+			$class = mysql_fetch_array($query);
+		}
+	
+		return $alltimetables;
+		
+	}
+	function numberOfLecturesInSemester( $timetable)
+	{
+		$count = 0;
+		for($i = 0;$i<sizeof($timetable);$i++)
+		{
+			if($timetable[$i]['type'] === "LEC")
+			{
+				$count = $count+1;
+			}
+		}
+		return $count;
+	}
+
+	
 	function getYearStanding($coursedataarray)
 	{
 		/*

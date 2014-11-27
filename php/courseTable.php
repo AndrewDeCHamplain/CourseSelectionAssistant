@@ -144,7 +144,7 @@
 				
 				var fall = schedule[fallIndex];
 				var winter = schedule[winterIndex];
-				
+				document.getElementById("schedule").innerHTML == "";
 				document.getElementById("schedule").innerHTML += "<p> Fall schedule";
 				for(var i=0; i <fall.childNodes.length; i++){
 

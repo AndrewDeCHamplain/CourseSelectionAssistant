@@ -1,0 +1,29 @@
+	
+		
+		for($fallIdx = 0; $fallIdx<sizeof($schedule[0]); $fallIdx++){
+			$result .= "<course>".$schedule[0][$fallIdx]->SUBJ." ".$schedule[0][$fallIdx]->CRSE."</course>";
+		}
+		
+		for($fallIdx = 0; $fallIdx<sizeof($fallsemester); $fallIdx++){
+			$result .= "<course>".$fallsemester[$fallIdx]['subj'].$fallsemester[$fallIdx]['crse']."  ".$fallsemester[$fallIdx]['seq']
+					."||Days: ".$fallsemester[$fallIdx]['day']
+					."||StartTime: ".$fallsemester[$fallIdx]['starttime']
+					."   EndTime: ".$fallsemester[$fallIdx]['endtime']."</course>";
+		}
+		$result .= "</fall><winter>";
+				
+		for($winterIdx = 0; $winterIdx<sizeof($schedule[1]); $winterIdx++){
+			$result .= "<course>".$schedule[1][$winterIdx]->SUBJ." ".$schedule[1][$winterIdx]->CRSE."</course>";
+		}
+		
+		for($winterIdx = 0; $winterIdx<sizeof($wintersemester); $winterIdx++){
+			$result .= "<course>".$wintersemester[$winterIdx]['subj'].$wintersemester[$winterIdx]['crse']."  ".$wintersemester[$winterIdx]['seq']
+					."||Days: ".$wintersemester[$winterIdx]['day']
+					."||StartTime: ".$wintersemester[$winterIdx]['starttime']
+					."   EndTime: ".$wintersemester[$winterIdx]['endtime']."</course>";
+		}
+		$result .= "</winter></schedule>";
+		
+		header("content-type: text/xml");
+		echo $result;
+	}
