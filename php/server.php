@@ -345,6 +345,7 @@
 
 	function scheduleTimetable($schedule, $timetable, $semester)
 	{
+			set_time_limit(120);
 			$semesterstring = "";
 			if($semester === 0)
 			{
@@ -400,6 +401,7 @@
 	}
 	function getClass($semester, $semesterstring, $schedule, $timetable, $alltimetables)
 	{
+		
 		$count = 0;
 		for($i = 0;$i<sizeof($timetable);$i++)
 		{
@@ -421,8 +423,8 @@
 			if(hasConflicts($timetable, $class)) // if this class has no conflict do this
 			{
 				
-				//$labs = hasLabs($class, $timetable, $semester, $semesterstring); // returns false if there is no lab that fits, returns a new time table with a lab in it if there is
-				//********************************************************************************
+				
+				//************************************LLLAAAABBBBBBSSSSS START********************************************
 				$sec = $class['seq'];
 				$subj = $class['subj'];
 				$crse = $class['crse'];
@@ -439,9 +441,9 @@
 				
 				while($labs !== false )
 				{
-					if(strlen($labs['seq'])>1 )
-					{
-						if(strpos($labs['seq'], $sec)!==false)
+					//if(strlen($labs['seq'])>1 )
+					//{
+						if(strpos($labs['seq'], $sec)!==false || strpos($labs['seq'], "L")!==false || strpos($labs['seq'], "G")!==false)
 						{
 							if(hasConflicts($timetable, $labs) )
 							{
@@ -454,8 +456,7 @@
 								
 							}
 						}
-						
-						if(strpos($labs['seq'], "L")!==false || strpos($labs['seq'], "G")!==false )
+					/*	else if(strpos($labs['seq'], "L")!==false || strpos($labs['seq'], "G")!==false )
 						{
 							
 							if(hasConflicts($timetable, $labs) )
@@ -468,11 +469,11 @@
 								$alltimetables = getClass($semester, $semesterstring, $schedule, $temptable, $alltimetables);
 								
 							}
-						}
-					}
+						}*/
+				//	}
 					$labs = mysql_fetch_array($query); 			
 				}	
-			
+				//************************************LLLAAAABBBBBBSSSSS END********************************************
 							
 			}
 			
@@ -783,24 +784,15 @@
 		{
 			$oldcourseday = $arrayofcourses[$i]['day'];//get the day for arrayofcourses[$i]
 			$oldcoursedayarray = str_split($oldcourseday, 1);
-			if(strlen($oldcourseday) == 1)
-			{
-				array_push($oldcoursedayarray, " " );
-				
-			}
-			else if(strlen($oldcourseday) == 0)
-			{
-				array_push($oldcoursedayarray, " " );
-				array_push($oldcoursedayarray, " " );
-			}
+			
 			$oldcoursestarttime = intval($arrayofcourses[$i]['starttime']);
 			$oldcourseendtime = intval($arrayofcourses[$i]['endtime']);
 			
-			if($oldcoursedayarray[0] === $newcoursedayarray[0] || 
-				$oldcoursedayarray[1] === $newcoursedayarray[1] || 
-				$oldcoursedayarray[0] === $newcoursedayarray[1] || 
-				$oldcoursedayarray[1] === $newcoursedayarray[0])
+			if(strlen($oldcourseday) === 1)
 			{
+				
+			}
+			
 				if($oldcoursestarttime <= $newcoursestarttime && $oldcourseendtime >= $newcoursestarttime)
 				{
 					//newcourse starts within an old course
