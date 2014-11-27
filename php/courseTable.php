@@ -2,7 +2,6 @@
 	
 	echo "<link rel=\"stylesheet\" href=\"../style/coursecolors.css\">";
 	
-	//$array = [];
 	/*
 		The content of the form is sent as an array to php
 		named as:
@@ -65,7 +64,7 @@
 		/********** Table has now been made ***********/
 
 		// Create an array of php data to be used in JS
-		$jsdata = array('courseArray' => $array, 'courseData' => $courseData);
+		$jsdata = array('courseArray' => $array, 'courseData' => $courseData, 'program'=>$program);
 ?>
 		
 		<script type="text/javascript"> 
@@ -76,7 +75,8 @@
 				courseArray = JSDATA.courseArray,
 				courseDataString = JSDATA.courseData,
 				courseData = [],
-				courseDataIdx = 0;
+				courseDataIdx = 0,
+				program = JSDATA.program;
 			
 			// Get the courseData from a string into an array
 			for (var i = 0, length = courseDataString.length; i < length; i += 1) {
@@ -92,23 +92,46 @@
 					for(var semIdx = 0; semIdx < cellLength; semIdx++){
 						var cell = row.cells[semIdx];
 						if(courseArray[semIdx][classIdx-2].SUBJ + courseArray[semIdx][classIdx-2].CRSE !== ""){
-							cell.innerHTML = courseArray[semIdx][classIdx-2].SUBJ + courseArray[semIdx][classIdx-2].CRSE;
-							cell.className = courseArray[semIdx][classIdx-2].SUBJ;
-							
-							var checkbox = document.createElement('input');
-							checkbox.type = "checkbox";
-							checkbox.value = "Completed?";
-							checkbox.id = "checkbox" + courseArray[semIdx][classIdx-2].SUBJ + courseArray[semIdx][classIdx-2].CRSE;
-							
-							if(courseData[courseDataIdx] === 1){
-								checkbox.checked = true;
+							if(courseArray[semIdx][classIdx-2].SUBJ.indexOf("ELECTIVE") > -1){
+								cell.innerHTML = courseArray[semIdx][classIdx-2].SUBJ;
+								cell.className = (courseArray[semIdx][classIdx-2].SUBJ).replace(/\s+/g, '');
+								
+								var elecInfoArray = courseArray[semIdx][classIdx-2].CRSE.split(',');
+								var electiveNum = elecInfoArray[0];
+								var electiveNote = elecInfoArray[1];
+								
+								
+								var checkbox = document.createElement('input');
+								checkbox.type = "checkbox";
+								checkbox.value = "Completed?";
+								checkbox.id = "checkbox" + courseArray[semIdx][classIdx-2].SUBJ + courseArray[semIdx][classIdx-2].CRSE;
+								
+								if(courseData[courseDataIdx] === 1){
+									checkbox.checked = true;
+								} else {
+									checkbox.checked = false;
+								}
+								cell.appendChild(checkbox);
+								
 							} else {
-								checkbox.checked = false;
+								cell.innerHTML = courseArray[semIdx][classIdx-2].SUBJ + courseArray[semIdx][classIdx-2].CRSE;
+								cell.className = courseArray[semIdx][classIdx-2].SUBJ;
+								
+								var checkbox = document.createElement('input');
+								checkbox.type = "checkbox";
+								checkbox.value = "Completed?";
+								checkbox.id = "checkbox" + courseArray[semIdx][classIdx-2].SUBJ + courseArray[semIdx][classIdx-2].CRSE;
+								
+								if(courseData[courseDataIdx] === 1){
+									checkbox.checked = true;
+								} else {
+									checkbox.checked = false;
+								}
+								cell.appendChild(checkbox);
 							}
-							courseDataIdx++;
-							cell.appendChild(checkbox);
 				
 						}
+						courseDataIdx++;
 					}
 				}	
 			}
@@ -144,14 +167,29 @@
 				
 				var fall = schedule[fallIndex];
 				var winter = schedule[winterIndex];
-				document.getElementById("schedule").innerHTML == "";
+				
+				/* 
+				* Creates a select menu for all the classes in the fall semester, this will be altered to work 
+				* with all the possible electives that the student will be able to take.
+				*
+				document.getElementById("schedule").innerHTML += "<p> Fall schedule <br /><select id='opts'>";
+				for(var i=0; i <fall.childNodes.length; i++){
+					
+					var info = fall.childNodes[i].innerHTML;
+					document.getElementById("opts").innerHTML += "<option value='0'>"+info+"</option>";
+				}
+				document.getElementById("schedule").innerHTML += "</select></p><p> Winter Schedule";
+				*
+				*
+				*/
+				
+				
 				document.getElementById("schedule").innerHTML += "<p> Fall schedule";
 				for(var i=0; i <fall.childNodes.length; i++){
-
+					
 					var info = fall.childNodes[i].innerHTML;
 					document.getElementById("schedule").innerHTML += "<b>Class #: "+info +"<br/>";
 				}
-				
 				document.getElementById("schedule").innerHTML += "</p><p> Winter Schedule";
 				for(var i=0; i <winter.childNodes.length; i++){
 
@@ -165,7 +203,7 @@
 		};
 		
 		// Sending the courseData with the XMLHttpRequest
-		xmlHttp.send("typeofrequest=getschedule&coursedata="+courseData);  //"typeofrequest=read&timestamp="+timestamp	
+		xmlHttp.send("typeofrequest=getschedule&coursedata="+courseData);
 
 	}
 	
@@ -217,8 +255,8 @@
 						} else {
 							coursesSelected[selectedIdx] = 0;
 						}
-						
 						selectedIdx++;
+						
 					}
 					else if(courseArray[semIdx][classIdx-2].SUBJ + courseArray[semIdx][classIdx-2].CRSE == "")
 					{
@@ -235,4 +273,94 @@
 		return strCoursesSelected;
 	}
 
+	function getElectiveInfo(program, electiveNum, electiveNote){
+	
+		var elecArray = [];
+		
+		if(program === "Computer Systems Engineering"){
+			switch(electiveNote){
+				case "GS":
+					elecArray = ['GS'];
+					return elecArray;
+				case "NB":
+					elecArray = [
+						'MECH 4503', 'ECOR 2606', 'SYSC 3006', 'SYSC 3101', 'SYSC 3120', 'SYSC 3200', 'SYSC 3203', 'SYSC 4005',
+						'SYSC 4102', 'SYSC 4106', 'SYSC 4202', 'SYSC 4205', 'SYSC 4405', 'SYSC 4505', 'SYSC 4607',
+						'SYSC 4700', 'ELEC 3105', 'ELEC 3508', 'ELEC 3509', 'ELEC 3605', 'ELEC 3908', 'ELEC 3909', 
+						'ELEC 4502', 'ELEC 4503', 'ELEC 4505', 'ELEC 4506', 'ELEC 4509', 'ELEC 4600', 'ELEC 4601', 
+						'ELEC 4602', 'ELEC 4609', 'ELEC 4700', 'ELEC 4702', 'ELEC 4703', 'ELEC 4704', 'ELEC 4705', 
+						'ELEC 4706', 'ELEC 4708', 'ELEC 4709'
+						];
+					return elecArray;
+				default:
+					alert("JSON has been edited, specify the type of Elective");
+			}
+		} else if (program === "Software Engineering"){
+			switch(electiveNote){
+				case "GS":
+					elecArray = ['GS'];
+					return elecArray;
+				case "NA":
+					elecArray = ['SYSC 3200', 'SYSC 3600', 'SYSC 3601', 'SYSC 4102', 'SYSC 4502', 'SYSC 4604',
+						'SYSC 4602', 'ELEC 2507', 'ELEC 4708', 'ELEC 4509', 'ELEC 4506'];
+					return elecArray;
+				case "NB":
+					elecArray = ['SYSC 4105', 'SYSC 4107', 'COMP 3002', 'COMP 4000', 'COMP 4001', 'COMP 4002', 'COMP 4003', 'COMP 4106'];
+					return elecArray;
+				default:
+					alert("JSON has been edited, specify the type of Elective");
+			}
+		
+		} else if (program === "Communication Engineering"){
+			switch(electiveNote){
+				case "GS":
+					elecArray = ['GS'];
+					return elecArray;
+				case "NA":
+					elecArray = ['GS'];
+					return elecArray;
+				case "NC":
+					elecArray = ['COMM'];
+					return elecArray;
+				case "ND":
+					relecArray = [
+						'SYSC 3006', 'SYSC 3101', 'SYSC 3120', 'SYSC 3200', 'SYSC 3203', 'SYSC 4005',
+						'SYSC 4102', 'SYSC 4106', 'SYSC 4202', 'SYSC 4205', 'SYSC 4505', 'SYSC 4607',
+						'ELEC 3105', 'ELEC 3508', 'ELEC 3605', 'ELEC 3908', 'ELEC 4502', 'ELEC 4503', 
+						'ELEC 4505', 'ELEC 4506', 'ELEC 4509', 'ELEC 4600', 'ELEC 4601', 'ELEC 4602', 
+						'ELEC 4609', 'ELEC 4700', 'ELEC 4702', 'ELEC 4703', 'ELEC 4704', 'ELEC 4705', 
+						'ELEC 4706', 'ELEC 4708', 'ELEC 4709'
+						];
+					return elecArray;
+				default:
+					alert("JSON has been edited, specify the type of Elective");
+			}
+		
+		} else if (program === "Biomedical Engineering"){
+			switch(electiveNote){	
+				case "GS":
+					elecArray = ['GS'];
+					return elecArray;
+				case "NA":
+					elecArray = ['BIOL 2201', 'BIOL 2005', 'CHEM 2203'];
+					return elecArray;
+				case "NB":
+					elecArray = ['ELEC 4709', 'SYSC 4202', 'SYSC 4205'];
+					return elecArray;
+				case "NC":
+					elecArray = ['SYSC 3101', 'SYSC 3200', 'SYSC 3303', 'SYSC 3500', 'SYSC 3503', 'SYSC 3600', 'SYSC 3601', 'SYSC 4001', 
+						'SYSC 4101', 'SYSC 4005', 'SYSC 4005', 'SYSC 4106', 'SYSC 4120', 'SYSC 4502', 'SYSC 4504', 'SYSC 4505', 'SYSC 4507', 
+						'SYSC 4600', 'SYSC 4602', 'SYSC 4604', 'SYSC 4607', 'SYSC 4700', 'ELEC 3508', 'ELEC 3509', 'ELEC 3605', 'ELEC 3908', 
+						'ELEC 3909', 'ELEC 4502', 'ELEC 4503', 'ELEC 4505', 'ELEC 4506', 'ELEC 4609', 'ELEC 4702', 'ELEC 4703', 'ELEC 4704', 
+						'ELEC 4706', 'ELEC 4707', 'ELEC 4708', 'ELEC 4709'];
+					return elecArray;
+				default:
+					alert("JSON has been edited, specify the type of Elective");
+			}
+		
+		} else {
+			alert("No Stream selected, how did you even do this? I'm truly curious because that should not be possible!");
+		}
+	
+	}
 </script>
