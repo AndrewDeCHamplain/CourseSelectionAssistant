@@ -768,11 +768,8 @@
 		//test new course against all courses in the array
 		$newcourseday = $newcourse['day'];//get the day for the class newcourse
 		$newcoursedayarray = str_split($newcourseday, 1);
-		if(strlen($newcourseday) == 1)
-		{
-			array_push($newcoursedayarray, " " );
-		}
-		else if(strlen($newcourseday) == 0)
+	
+		if(strlen($newcourseday) === 0)
 		{
 			return true;
 		}
@@ -788,11 +785,19 @@
 			$oldcoursestarttime = intval($arrayofcourses[$i]['starttime']);
 			$oldcourseendtime = intval($arrayofcourses[$i]['endtime']);
 			
-			if(strlen($oldcourseday) === 1)
+			$sameday = false;
+			for($k=0;$k<sizeof($oldcoursedayarray);$k++)
 			{
-				
+				for($j=0;$j<sizeof($newcoursedayarray);$j++)
+				{
+					if($oldcoursedayarray[$k] === $newcoursedayarray[$j])
+					{
+						$sameday = true;
+					}
+				}
 			}
-			
+			if($sameday)
+			{
 				if($oldcoursestarttime <= $newcoursestarttime && $oldcourseendtime >= $newcoursestarttime)
 				{
 					//newcourse starts within an old course
