@@ -171,18 +171,30 @@
 				/* 
 				* Creates a select menu for all the classes in the fall semester, this will be altered to work 
 				* with all the possible electives that the student will be able to take.
-				*
-				document.getElementById("schedule").innerHTML += "<p> Fall schedule <br /><select id='opts'>";
+				*/
+				console.log(fall);
+				console.log(winter);
+			/*	document.getElementById("schedule").innerHTML += "<p> Fall schedule <br /><select id='optsfall'>";
 				for(var i=0; i <fall.childNodes.length; i++){
 					
 					var info = fall.childNodes[i].innerHTML;
-					document.getElementById("opts").innerHTML += "<option value='0'>"+info+"</option>";
+					for(var j=0; j <info.childNodes.length; j++)
+					{
+						var course = info.childNodes[j].innerHTML;
+						document.getElementById("optsfall").innerHTML += "<option value='0'>"+course+"</option>";
+					}					
 				}
-				document.getElementById("schedule").innerHTML += "</select></p><p> Winter Schedule";
-				*
-				*
-				*/
+				document.getElementById("schedule").innerHTML += "</select></p><p> Winter Schedule<br /><select id='optswinter'>";
 				
+				for(var i=0; i <winter.childNodes.length; i++){
+					
+					var info = winter.childNodes[i].innerHTML;
+					for(var j=0; j <info.childNodes.length; j++)
+					{
+						var course = info.childNodes[j].innerHTML;
+						document.getElementById("optswinter").innerHTML += "<option value='0'>"+course+"</option>";
+					}					
+				}
 				
 				document.getElementById("schedule").innerHTML += "<p> Fall schedule";
 				for(var i=0; i <fall.childNodes.length; i++){
@@ -196,7 +208,7 @@
 					var info = winter.childNodes[i].innerHTML;
 					document.getElementById("schedule").innerHTML += "<b>Class #: "+info +"<br/>";
 						
-				}
+				}*/
 				
 				//console.log(response);
 			}

@@ -117,7 +117,7 @@
 		$array = json_decode($json);
 		return $array;
 	}
- if($type=="setstream"){
+	if($type=="setstream"){
   
  	$login = $_COOKIE['login'];
  	$stream = $_POST['program'];
@@ -210,7 +210,11 @@
 									}
 								}
 								
-							}	
+							}
+							else{
+								//array_push($schedule[$fallId], $programArray[$semIdx][$courseIdx]);
+								//$coursedataarray[$semIdx][$courseIdx] = 2;
+							}
 							
 						}
 					
@@ -231,6 +235,11 @@
 									}
 								}
 							}
+							else
+							{
+							//	array_push($schedule[$fallId], $programArray[$semIdx][$courseIdx]);
+								//$coursedataarray[$semIdx][$courseIdx] = 2;
+							}
 						}
 					}
 				
@@ -242,8 +251,8 @@
 		//$fallsemester = schedule($schedule, $falltimetable, 0, $fallId, 0);
 		$wintertimetable = array();
 		//$wintersemester = schedule($schedule, $wintertimetable, 0, $winterId, 0);				
-		$fallsemester =  scheduleTimetable($schedule, $falltimetable, 0);
-		$wintersemester =  scheduleTimetable($schedule, $wintertimetable, 1);
+		$fallsemester =  scheduleTimetable($schedule, $falltimetable, 0, $program);
+		$wintersemester =  scheduleTimetable($schedule, $wintertimetable, 1, $program);
 		$result = "<schedule><fall>";
 		
 		for($fallIdx = 0; $fallIdx<sizeof($schedule[0]); $fallIdx++){
@@ -251,14 +260,14 @@
 		}
 		for($i = 0;$i<sizeof($fallsemester);$i++)
 		{
-				$result .= "<course>Time Table ".$i ."</course>";
+				$result .= "<timetable>";
 				for($fallIdx = 0; $fallIdx<sizeof($fallsemester[$i]); $fallIdx++){
 					$result .= "<course>".$fallsemester[$i][$fallIdx]['subj'].$fallsemester[$i][$fallIdx]['crse']."  ".$fallsemester[$i][$fallIdx]['seq']
 							."||Days: ".$fallsemester[$i][$fallIdx]['day']
 							."||StartTime: ".$fallsemester[$i][$fallIdx]['starttime']
 							."   EndTime: ".$fallsemester[$i][$fallIdx]['endtime']."</course>";
 				}
-				
+				$result .= "</timetable>";
 			
 		}
 		$result .= "</fall><winter>";	
@@ -268,14 +277,14 @@
 	
 		for($i = 0;$i<sizeof($wintersemester);$i++)
 		{
-				$result .= "<course>Time Table ". $i ."</course>";
+				$result .= "<timetable>";
 				for($winterIdx = 0; $winterIdx<sizeof($wintersemester[$i]); $winterIdx++){
 					$result .= "<course>".$wintersemester[$i][$winterIdx]['subj'].$wintersemester[$i][$winterIdx]['crse']."  ".$wintersemester[$i][$winterIdx]['seq']
 							."||Days: ".$wintersemester[$i][$winterIdx]['day']
 							."||StartTime: ".$wintersemester[$i][$winterIdx]['starttime']
 							."   EndTime: ".$wintersemester[$i][$winterIdx]['endtime']."</course>";
 				}
-				
+				$result .= "</timetable>";
 			
 		}
 		$result .= "</winter></schedule>";
@@ -315,8 +324,16 @@
 		{
 			for($j = 0;$j<sizeof($schedule[$i]);$j++)
 			{
-				array_push($scheduleOrganized[$i], numberOfSections($i, $schedule[$i][$j]->SUBJ, $schedule[$i][$j]->CRSE));
-
+				if(strpos($schedule[ $i][$j]->SUBJ, "ELECTIVE")!==false)
+				{
+					array_push($scheduleOrganized[$i], 1000);
+				}
+				else
+				{
+					array_push($scheduleOrganized[$i], numberOfSections($i, $schedule[$i][$j]->SUBJ, $schedule[$i][$j]->CRSE));
+				}
+				
+				
 			}
 		}
 		$temp = 0;
@@ -346,9 +363,9 @@
 		
 	}
 
-	function scheduleTimetable($schedule, $timetable, $semester)
+	function scheduleTimetable($schedule, $timetable, $semester, $program)
 	{
-			set_time_limit(120);
+			set_time_limit(600);
 			$semesterstring = "";
 			if($semester === 0)
 			{
@@ -360,12 +377,12 @@
 			}
 			$alltimetables = array();
 			$timetables = array();
-			$alltimetables = getClass($semester, $semesterstring, $schedule, $timetable, $alltimetables);
-			
-			$result = array();
+			$alltimetables = getClass($semester, $semesterstring, $schedule, $timetable, $alltimetables, $program);
+			return $alltimetables;
+		/*	$result = array();
 			$resultindex = array();
 			for($i = 0;$i<sizeof($alltimetables);$i++)
-			{
+			{	
 				array_push($resultindex, numberOfLecturesInSemester($alltimetables[$i]));
 			
 			}
@@ -398,12 +415,17 @@
 			{
 				array_push($result, $alltimetables[$i]);
 			}
-			return $result;
+			return $result;*/
 			
 			
 	}
-	function getClass($semester, $semesterstring, $schedule, $timetable, $alltimetables)
+	function electest($semester, $semesterstring, $schedule, $timetable, $alltimetables, $program)
 	{
+			if(sizeof($alltimetables)>100)
+		{
+			return $alltimetables;
+		}
+	
 		$count = 0;
 		for($i = 0;$i<sizeof($timetable);$i++)
 		{
@@ -417,9 +439,265 @@
 			array_push($alltimetables, $timetable);
 			return $alltimetables;
 		}
+		
+		$electivecount =0;
+		$electiveindex =-1;
+		$query = "";
+		$class = "";
 	
-		$query = mysql_query("SELECT * FROM ".$semesterstring." WHERE subj='{$schedule[ $semester][$count]->SUBJ}' AND crse='{$schedule[$semester][ $count ]->CRSE}' AND type='LEC'") or die(mysql_error());
+		if(strpos($schedule[ $semester][$count]->SUBJ, "ELECTIVE")!==false)
+		{
+			$temp = explode("-", $schedule[ $semester][$count]->CRSE);
+			$elecarray = getElectiveInfo($program, $temp[0], $temp[1]);
+			$elective = true;
+			$electiveindex =0;
+			$electivecount = sizeof($elecarray);
+			$temp2 = explode(" ", $elecarray[$electivecount]);
+			$query = mysql_query("SELECT * FROM ".$semesterstring." WHERE subj='{$temp2[0]}' AND crse='{$temp2[1]}' AND type='LEC'") or die(mysql_error());
+		}
+		else
+		{
+		
+			$query = mysql_query("SELECT * FROM ".$semesterstring." WHERE subj='{$schedule[ $semester][$count]->SUBJ}' AND crse='{$schedule[$semester][ $count ]->CRSE}' AND type='LEC'") or die(mysql_error());
+		}
+		
 		$class = mysql_fetch_array($query); 
+
+		while($electiveindex<$electivecount)
+		{
+			
+			if($electiveindex>0)
+			{
+				$temp = explode("-", $schedule[ $semester][$count]->CRSE);
+				$elecarray = getElectiveInfo($program, $temp[0], $temp[1]);
+				$elective = true;
+				$temp2 = explode(" ", $elecarray[$electiveindex]);
+				$query = mysql_query("SELECT * FROM ".$semesterstring." WHERE subj='{$temp2[0]}' AND crse='{$temp2[1]}' AND type='LEC'") or die(mysql_error());
+				$class = mysql_fetch_array($query);
+
+			}
+			while($class !== false)
+			{
+				if(hasConflicts($timetable, $class)) // if this class has no conflict do this
+				{
+					
+					//************************************LLLAAAABBBBBBSSSSS START********************************************
+					$sec = $class['seq'];
+					$subj = $class['subj'];
+					$crse = $class['crse'];
+					$querylabs = mysql_query("SELECT * FROM ".$semesterstring." WHERE subj='{$subj}' AND crse='{$crse}' AND type!='LEC'") or die(mysql_error());
+					$labs = mysql_fetch_array($querylabs);
+					$labclass = $labs;
+					if($labs === false)
+					{
+						$temptable = $timetable;
+						array_push($temptable, $class); //push the specified class into the array
+						//array_push($alltimetables, $temptable);
+						$alltimetables = getClass($semester, $semesterstring, $schedule, $temptable, $alltimetables, $program);
+					}
+					
+					while($labs !== false )
+					{
+					
+						if(strpos($labs['seq'], $sec)!==false || strpos($labs['seq'], "L")!==false || strpos($labs['seq'], "G")!==false)
+						{
+							if(hasConflicts($timetable, $labs) )
+							{
+								
+								$temptable = $timetable;
+								array_push($temptable, $labs); 
+								array_push($temptable, $class); //push the specified class into the array
+								//array_push($alltimetables, $temptable);
+								$alltimetables = getClass($semester, $semesterstring, $schedule, $temptable, $alltimetables, $program);
+								
+							}
+						}
+						
+						$labs = mysql_fetch_array($querylabs); 			
+					}	
+				
+					//************************************LLLAAAABBBBBBSSSSS END********************************************
+								
+				}
+				$class = mysql_fetch_array($query);
+				
+			}
+			if($electivecount>-1)
+			{
+				$electiveindex=$electiveindex+1;
+				
+			}
+			else
+			{
+				$electivecount =0;
+			}
+		}
+		return $alltimetables;
+	}
+	function electtest($semester, $semesterstring, $schedule, $timetable, $alltimetables, $program)
+	{
+	
+		if(sizeof($alltimetables)>100)
+		{
+			return $alltimetables;
+		}
+	
+		$count = 0;
+		for($i = 0;$i<sizeof($timetable);$i++)
+		{
+			if($timetable[$i]['type'] === "LEC")
+			{
+				$count = $count+1;
+			}
+		}
+		if($count === sizeof($schedule[$semester]))
+		{
+			array_push($alltimetables, $timetable);
+			return $alltimetables;
+		}
+		
+		$electiveindex =-1;
+		$query = "";
+		$class = "";
+		$electiveloop=true;
+		
+		if(strpos($schedule[ $semester][$count]->SUBJ, "ELECTIVE")!==false)
+		{
+			
+			$temp = explode("-", $schedule[ $semester][$count]->CRSE);
+			$electiveindex =0;
+			$elective = getElectiveInfo($program, $temp[0], $temp[1], $electiveindex);
+			$electiveindex = $electiveindex+1;
+		
+			$temp2 = explode(" ", $elecarray[$electivecount]);
+			$query = mysql_query("SELECT * FROM ".$semesterstring." WHERE subj='{$temp2[0]}' AND crse='{$temp2[1]}' AND type='LEC'") or die(mysql_error());
+		
+		}
+		else
+		{
+			
+			$query = mysql_query("SELECT * FROM ".$semesterstring." WHERE subj='{$schedule[ $semester][$count]->SUBJ}' AND crse='{$schedule[$semester][ $count ]->CRSE}' AND type='LEC'") or die(mysql_error());
+		}
+		
+		$class = mysql_fetch_array($query); 
+
+		while($electiveloop)
+		{
+			while($class !== false)
+			{
+				if(hasConflicts($timetable, $class)) // if this class has no conflict do this
+				{
+					
+					//************************************LLLAAAABBBBBBSSSSS START********************************************
+					$sec = $class['seq'];
+					$subj = $class['subj'];
+					$crse = $class['crse'];
+					$querylabs = mysql_query("SELECT * FROM ".$semesterstring." WHERE subj='{$subj}' AND crse='{$crse}' AND type!='LEC'") or die(mysql_error());
+					$labs = mysql_fetch_array($querylabs);
+					$labclass = $labs;
+					if($labs === false)
+					{
+						$temptable = $timetable;
+						array_push($temptable, $class); //push the specified class into the array
+						//array_push($alltimetables, $temptable);
+						$alltimetables = getClass($semester, $semesterstring, $schedule, $temptable, $alltimetables, $program);
+					}
+					
+					while($labs !== false )
+					{
+					
+						if(strpos($labs['seq'], $sec)!==false || strpos($labs['seq'], "L")!==false || strpos($labs['seq'], "G")!==false)
+						{
+							if(hasConflicts($timetable, $labs) )
+							{
+								
+								$temptable = $timetable;
+								array_push($temptable, $labs); 
+								array_push($temptable, $class); //push the specified class into the array
+								//array_push($alltimetables, $temptable);
+								$alltimetables = getClass($semester, $semesterstring, $schedule, $temptable, $alltimetables, $program);
+								
+							}
+						}
+						
+						$labs = mysql_fetch_array($querylabs); 			
+					}	
+				
+					//************************************LLLAAAABBBBBBSSSSS END********************************************
+								
+				}
+				$class = mysql_fetch_array($query);
+				
+			}
+			if(strpos($schedule[ $semester][$count]->SUBJ, "ELECTIVE")!==false)
+			{
+				
+				$temp = explode("-", $schedule[ $semester][$count]->CRSE);
+				$elective = getElectiveInfo($program, $temp[0], $temp[1], $electiveindex);
+				if($elective !== false )
+				{
+					$electiveindex = $electiveindex+1;
+					$temp2 = explode(" ", $elecarray[$electivecount]);
+					$query = mysql_query("SELECT * FROM ".$semesterstring." WHERE subj='{$temp2[0]}' AND crse='{$temp2[1]}' AND type='LEC'") or die(mysql_error());
+					$class = mysql_fetch_array($query);
+				}
+				else
+				{
+					$electiveloop = false;
+				}
+			}
+			else
+			{
+			
+				$electiveloop=false;
+			}
+			
+		}
+		return $alltimetables;
+		
+	
+	
+	}
+	function electivesattempt3($semester, $semesterstring, $schedule, $timetable, $alltimetables, $program)
+	{
+		if(sizeof($alltimetables)>100)
+		{
+			return $alltimetables;
+		}
+		$count = 0;
+		for($i = 0;$i<sizeof($timetable);$i++)
+		{
+			if($timetable[$i]['type'] === "LEC")
+			{
+				$count = $count+1;
+			}
+		}
+		if($count === sizeof($schedule[$semester]))
+		{
+			array_push($alltimetables, $timetable);
+			return $alltimetables;
+		} 
+		$subj = "";
+		$crse = "";
+		//check if it is an elective
+		if(strpos($schedule[ $semester][$count]->SUBJ, "ELECTIVE")!==false)
+		{
+			$temp = explode("-", $schedule[ $semester][$count]->CRSE);
+			$temp2 =  getElectiveInfo($program, $temp[0], $temp[1], 0);
+			$temp3 = explode(" ", $elecarray[$electivecount]);
+			$sub =$temp3[0];//elective subj
+			$csre = $temp3[1];//elective csre
+		}
+		else
+		{
+			$subj = $schedule[ $semester][$count]->SUBJ;
+			$csre = $schedule[$semester][ $count ]->CRSE;
+		}
+		
+		$query = mysql_query("SELECT * FROM ".$semesterstring." WHERE subj='{$subj}' AND crse='{$csre}' AND type='LEC'") or die(mysql_error());
+		$class = mysql_fetch_array($query); 
+
+	
 		while($class !== false)
 		{
 			if(hasConflicts($timetable, $class)) // if this class has no conflict do this
@@ -429,60 +707,118 @@
 				$sec = $class['seq'];
 				$subj = $class['subj'];
 				$crse = $class['crse'];
-				$query = mysql_query("SELECT * FROM ".$semesterstring." WHERE subj='{$subj}' AND crse='{$crse}' AND type!='LEC'") or die(mysql_error());
-				$labs = mysql_fetch_array($query);
+				$querylabs = mysql_query("SELECT * FROM ".$semesterstring." WHERE subj='{$subj}' AND crse='{$crse}' AND type!='LEC'") or die(mysql_error());
+				$labs = mysql_fetch_array($querylabs);
 				$labclass = $labs;
 				if($labs === false)
 				{
 					$temptable = $timetable;
 					array_push($temptable, $class); //push the specified class into the array
-					array_push($alltimetables, $temptable);
-					$alltimetables = getClass($semester, $semesterstring, $schedule, $temptable, $alltimetables);
+				//	array_push($alltimetables, $temptable);
+					$alltimetables = getClass($semester, $semesterstring, $schedule, $temptable, $alltimetables, $program);
 				}
 				
 				while($labs !== false )
 				{
-					//if(strlen($labs['seq'])>1 )
-					//{
-						if(strpos($labs['seq'], $sec)!==false || strpos($labs['seq'], "L")!==false || strpos($labs['seq'], "G")!==false)
-						{
-							if(hasConflicts($timetable, $labs) )
-							{
-								
-								$temptable = $timetable;
-								array_push($temptable, $labs); 
-								array_push($temptable, $class); //push the specified class into the array
-								array_push($alltimetables, $temptable);
-								$alltimetables = getClass($semester, $semesterstring, $schedule, $temptable, $alltimetables);
-								
-							}
-						}
-						
-						/*else if(strpos($labs['seq'], "L")!==false || strpos($labs['seq'], "G")!==false )
+				
+					if(strpos($labs['seq'], $sec)!==false || strpos($labs['seq'], "L")!==false || strpos($labs['seq'], "G")!==false)
+					{
+						if(hasConflicts($timetable, $labs) )
 						{
 							
-							if(hasConflicts($timetable, $labs) )
-							{
-								
-								$temptable = $timetable;
-								array_push($temptable, $labs); 
-								array_push($temptable, $class); //push the specified class into the array
-								array_push($alltimetables, $temptable);
-								$alltimetables = getClass($semester, $semesterstring, $schedule, $temptable, $alltimetables);
-								
-							}
-						}*/
-					//}
-					$labs = mysql_fetch_array($query); 			
+							$temptable = $timetable;
+							array_push($temptable, $labs); 
+							array_push($temptable, $class); //push the specified class into the array
+						//	array_push($alltimetables, $temptable);
+							$alltimetables = getClass($semester, $semesterstring, $schedule, $temptable, $alltimetables, $program);
+							
+						}
+					}
+					
+					$labs = mysql_fetch_array($querylabs); 			
 				}	
 			
 				//************************************LLLAAAABBBBBBSSSSS END********************************************
 							
 			}
-			
 			$class = mysql_fetch_array($query);
+			
 		}
+			
+		return $alltimetables;
+	}
+	function getClass($semester, $semesterstring, $schedule, $timetable, $alltimetables, $program)
+	{
+		if(sizeof($alltimetables)>100)
+		{
+			return $alltimetables;
+		}
+		$count = 0;
+		for($i = 0;$i<sizeof($timetable);$i++)
+		{
+			if($timetable[$i]['type'] === "LEC")
+			{
+				$count = $count+1;
+			}
+		}
+		if($count === sizeof($schedule[$semester]))
+		{
+			array_push($alltimetables, $timetable);
+			return $alltimetables;
+		} 
+		
+		
+		$query = mysql_query("SELECT * FROM ".$semesterstring." WHERE subj='{$schedule[ $semester][$count]->SUBJ}' AND crse='{$schedule[$semester][ $count ]->CRSE}' AND type='LEC'") or die(mysql_error());
+		$class = mysql_fetch_array($query); 
+
 	
+		while($class !== false)
+		{
+			if(hasConflicts($timetable, $class)) // if this class has no conflict do this
+			{
+				
+				//************************************LLLAAAABBBBBBSSSSS START********************************************
+				$sec = $class['seq'];
+				$subj = $class['subj'];
+				$crse = $class['crse'];
+				$querylabs = mysql_query("SELECT * FROM ".$semesterstring." WHERE subj='{$subj}' AND crse='{$crse}' AND type!='LEC'") or die(mysql_error());
+				$labs = mysql_fetch_array($querylabs);
+				$labclass = $labs;
+				if($labs === false)
+				{
+					$temptable = $timetable;
+					array_push($temptable, $class); //push the specified class into the array
+					//array_push($alltimetables, $temptable);
+					$alltimetables = getClass($semester, $semesterstring, $schedule, $temptable, $alltimetables, $program);
+				}
+				
+				while($labs !== false )
+				{
+				
+					if(strpos($labs['seq'], $sec)!==false || strpos($labs['seq'], "L")!==false || strpos($labs['seq'], "G")!==false)
+					{
+						if(hasConflicts($timetable, $labs) )
+						{
+							
+							$temptable = $timetable;
+							array_push($temptable, $labs); 
+							array_push($temptable, $class); //push the specified class into the array
+						//	array_push($alltimetables, $temptable);
+							$alltimetables = getClass($semester, $semesterstring, $schedule, $temptable, $alltimetables, $program);
+							
+						}
+					}
+					
+					$labs = mysql_fetch_array($querylabs); 			
+				}	
+			
+				//************************************LLLAAAABBBBBBSSSSS END********************************************
+							
+			}
+			$class = mysql_fetch_array($query);
+			
+		}
+			
 		return $alltimetables;
 		
 	}
@@ -946,5 +1282,158 @@
 		}
 		//course data is now a 2 dimensional array stored in temp
 		return $temp;
+	}
+	
+	
+	
+
+	function getElectiveInfo($program, $electiveNum, $electiveNote, $electivecount){
+	
+		$elecArray = array();
+		
+		if($program === "Computer Systems Engineering"){
+			switch($electiveNote){
+				case "GS":
+					$elecArray = array(
+						'MECH 4503', 'ECOR 2606', 'SYSC 3006', 'SYSC 3101', 'SYSC 3120', 'SYSC 3200', 'SYSC 3203', 'SYSC 4005',
+						'SYSC 4102', 'SYSC 4106', 'SYSC 4202', 'SYSC 4205', 'SYSC 4405', 'SYSC 4505', 'SYSC 4607',
+						'SYSC 4700', 'ELEC 3105', 'ELEC 3508', 'ELEC 3509', 'ELEC 3605', 'ELEC 3908', 'ELEC 3909', 
+						'ELEC 4502', 'ELEC 4503', 'ELEC 4505', 'ELEC 4506', 'ELEC 4509', 'ELEC 4600', 'ELEC 4601', 
+						'ELEC 4602', 'ELEC 4609', 'ELEC 4700', 'ELEC 4702', 'ELEC 4703', 'ELEC 4704', 'ELEC 4705', 
+						'ELEC 4706', 'ELEC 4708', 'ELEC 4709'
+						);
+						return $elecArray;
+				case "NB":
+					$elecArray = array(
+						'MECH 4503', 'ECOR 2606', 'SYSC 3006', 'SYSC 3101', 'SYSC 3120', 'SYSC 3200', 'SYSC 3203', 'SYSC 4005',
+						'SYSC 4102', 'SYSC 4106', 'SYSC 4202', 'SYSC 4205', 'SYSC 4405', 'SYSC 4505', 'SYSC 4607',
+						'SYSC 4700', 'ELEC 3105', 'ELEC 3508', 'ELEC 3509', 'ELEC 3605', 'ELEC 3908', 'ELEC 3909', 
+						'ELEC 4502', 'ELEC 4503', 'ELEC 4505', 'ELEC 4506', 'ELEC 4509', 'ELEC 4600', 'ELEC 4601', 
+						'ELEC 4602', 'ELEC 4609', 'ELEC 4700', 'ELEC 4702', 'ELEC 4703', 'ELEC 4704', 'ELEC 4705', 
+						'ELEC 4706', 'ELEC 4708', 'ELEC 4709'
+						);
+						return $elecArray;
+				default:
+					return false;
+			}
+		} else if ($program === "Software Engineering"){
+			switch($electiveNote){
+				case "GS":
+					$elecArray = array(
+						'MECH 4503', 'ECOR 2606', 'SYSC 3006', 'SYSC 3101', 'SYSC 3120', 'SYSC 3200', 'SYSC 3203', 'SYSC 4005',
+						'SYSC 4102', 'SYSC 4106', 'SYSC 4202', 'SYSC 4205', 'SYSC 4405', 'SYSC 4505', 'SYSC 4607',
+						'SYSC 4700', 'ELEC 3105', 'ELEC 3508', 'ELEC 3509', 'ELEC 3605', 'ELEC 3908', 'ELEC 3909', 
+						'ELEC 4502', 'ELEC 4503', 'ELEC 4505', 'ELEC 4506', 'ELEC 4509', 'ELEC 4600', 'ELEC 4601', 
+						'ELEC 4602', 'ELEC 4609', 'ELEC 4700', 'ELEC 4702', 'ELEC 4703', 'ELEC 4704', 'ELEC 4705', 
+						'ELEC 4706', 'ELEC 4708', 'ELEC 4709'
+						);
+				
+					return $elecArray;
+				case "NA":
+					$elecArray = array('SYSC 3200', 'SYSC 3600', 'SYSC 3601', 'SYSC 4102', 'SYSC 4502', 'SYSC 4604',
+						'SYSC 4602', 'ELEC 2507', 'ELEC 4708', 'ELEC 4509', 'ELEC 4506');
+						return $elecArray;
+
+				case "NB":
+					$elecArray= array('SYSC 4105', 'SYSC 4107', 'COMP 3002', 'COMP 4000', 'COMP 4001', 'COMP 4002', 'COMP 4003', 'COMP 4106');
+						return $elecArray;
+
+				default:
+					return false;
+			}
+		
+		} else if ($program === "Communication Engineering"){
+			switch($electiveNote){
+				case "GS":
+					$elecArray = array(
+						'MECH 4503', 'ECOR 2606', 'SYSC 3006', 'SYSC 3101', 'SYSC 3120', 'SYSC 3200', 'SYSC 3203', 'SYSC 4005',
+						'SYSC 4102', 'SYSC 4106', 'SYSC 4202', 'SYSC 4205', 'SYSC 4405', 'SYSC 4505', 'SYSC 4607',
+						'SYSC 4700', 'ELEC 3105', 'ELEC 3508', 'ELEC 3509', 'ELEC 3605', 'ELEC 3908', 'ELEC 3909', 
+						'ELEC 4502', 'ELEC 4503', 'ELEC 4505', 'ELEC 4506', 'ELEC 4509', 'ELEC 4600', 'ELEC 4601', 
+						'ELEC 4602', 'ELEC 4609', 'ELEC 4700', 'ELEC 4702', 'ELEC 4703', 'ELEC 4704', 'ELEC 4705', 
+						'ELEC 4706', 'ELEC 4708', 'ELEC 4709'
+						);
+					return $elecArray;
+				case "NA":
+					$elecArray = array(
+						'MECH 4503', 'ECOR 2606', 'SYSC 3006', 'SYSC 3101', 'SYSC 3120', 'SYSC 3200', 'SYSC 3203', 'SYSC 4005',
+						'SYSC 4102', 'SYSC 4106', 'SYSC 4202', 'SYSC 4205', 'SYSC 4405', 'SYSC 4505', 'SYSC 4607',
+						'SYSC 4700', 'ELEC 3105', 'ELEC 3508', 'ELEC 3509', 'ELEC 3605', 'ELEC 3908', 'ELEC 3909', 
+						'ELEC 4502', 'ELEC 4503', 'ELEC 4505', 'ELEC 4506', 'ELEC 4509', 'ELEC 4600', 'ELEC 4601', 
+						'ELEC 4602', 'ELEC 4609', 'ELEC 4700', 'ELEC 4702', 'ELEC 4703', 'ELEC 4704', 'ELEC 4705', 
+						'ELEC 4706', 'ELEC 4708', 'ELEC 4709'
+						);
+						return $elecArray;
+				case "NC":
+					$elecArray = array(
+						'MECH 4503', 'ECOR 2606', 'SYSC 3006', 'SYSC 3101', 'SYSC 3120', 'SYSC 3200', 'SYSC 3203', 'SYSC 4005',
+						'SYSC 4102', 'SYSC 4106', 'SYSC 4202', 'SYSC 4205', 'SYSC 4405', 'SYSC 4505', 'SYSC 4607',
+						'SYSC 4700', 'ELEC 3105', 'ELEC 3508', 'ELEC 3509', 'ELEC 3605', 'ELEC 3908', 'ELEC 3909', 
+						'ELEC 4502', 'ELEC 4503', 'ELEC 4505', 'ELEC 4506', 'ELEC 4509', 'ELEC 4600', 'ELEC 4601', 
+						'ELEC 4602', 'ELEC 4609', 'ELEC 4700', 'ELEC 4702', 'ELEC 4703', 'ELEC 4704', 'ELEC 4705', 
+						'ELEC 4706', 'ELEC 4708', 'ELEC 4709'
+						);
+						return $elecArray;
+				case "ND":
+					$elecArray= array(
+						'SYSC 3006', 'SYSC 3101', 'SYSC 3120', 'SYSC 3200', 'SYSC 3203', 'SYSC 4005',
+						'SYSC 4102', 'SYSC 4106', 'SYSC 4202', 'SYSC 4205', 'SYSC 4505', 'SYSC 4607',
+						'ELEC 3105', 'ELEC 3508', 'ELEC 3605', 'ELEC 3908', 'ELEC 4502', 'ELEC 4503', 
+						'ELEC 4505', 'ELEC 4506', 'ELEC 4509', 'ELEC 4600', 'ELEC 4601', 'ELEC 4602', 
+						'ELEC 4609', 'ELEC 4700', 'ELEC 4702', 'ELEC 4703', 'ELEC 4704', 'ELEC 4705', 
+						'ELEC 4706', 'ELEC 4708', 'ELEC 4709'
+						);
+						return $elecArray;
+				default:
+					return false;
+			}
+		
+		} else if ($program === "Biomedical Engineering"){
+			switch($electiveNote){	
+				case "GS":
+					$elecArray = array(
+						'MECH 4503', 'ECOR 2606', 'SYSC 3006', 'SYSC 3101', 'SYSC 3120', 'SYSC 3200', 'SYSC 3203', 'SYSC 4005',
+						'SYSC 4102', 'SYSC 4106', 'SYSC 4202', 'SYSC 4205', 'SYSC 4405', 'SYSC 4505', 'SYSC 4607',
+						'SYSC 4700', 'ELEC 3105', 'ELEC 3508', 'ELEC 3509', 'ELEC 3605', 'ELEC 3908', 'ELEC 3909', 
+						'ELEC 4502', 'ELEC 4503', 'ELEC 4505', 'ELEC 4506', 'ELEC 4509', 'ELEC 4600', 'ELEC 4601', 
+						'ELEC 4602', 'ELEC 4609', 'ELEC 4700', 'ELEC 4702', 'ELEC 4703', 'ELEC 4704', 'ELEC 4705', 
+						'ELEC 4706', 'ELEC 4708', 'ELEC 4709'
+						);
+						return $elecArray;
+				case "NA":
+					$elecArray = array(
+						'MECH 4503', 'ECOR 2606', 'SYSC 3006', 'SYSC 3101', 'SYSC 3120', 'SYSC 3200', 'SYSC 3203', 'SYSC 4005',
+						'SYSC 4102', 'SYSC 4106', 'SYSC 4202', 'SYSC 4205', 'SYSC 4405', 'SYSC 4505', 'SYSC 4607',
+						'SYSC 4700', 'ELEC 3105', 'ELEC 3508', 'ELEC 3509', 'ELEC 3605', 'ELEC 3908', 'ELEC 3909', 
+						'ELEC 4502', 'ELEC 4503', 'ELEC 4505', 'ELEC 4506', 'ELEC 4509', 'ELEC 4600', 'ELEC 4601', 
+						'ELEC 4602', 'ELEC 4609', 'ELEC 4700', 'ELEC 4702', 'ELEC 4703', 'ELEC 4704', 'ELEC 4705', 
+						'ELEC 4706', 'ELEC 4708', 'ELEC 4709'
+						);
+					return $elecArray;
+				case "NB":
+					$elecArray = array(
+						'MECH 4503', 'ECOR 2606', 'SYSC 3006', 'SYSC 3101', 'SYSC 3120', 'SYSC 3200', 'SYSC 3203', 'SYSC 4005',
+						'SYSC 4102', 'SYSC 4106', 'SYSC 4202', 'SYSC 4205', 'SYSC 4405', 'SYSC 4505', 'SYSC 4607',
+						'SYSC 4700', 'ELEC 3105', 'ELEC 3508', 'ELEC 3509', 'ELEC 3605', 'ELEC 3908', 'ELEC 3909', 
+						'ELEC 4502', 'ELEC 4503', 'ELEC 4505', 'ELEC 4506', 'ELEC 4509', 'ELEC 4600', 'ELEC 4601', 
+						'ELEC 4602', 'ELEC 4609', 'ELEC 4700', 'ELEC 4702', 'ELEC 4703', 'ELEC 4704', 'ELEC 4705', 
+						'ELEC 4706', 'ELEC 4708', 'ELEC 4709'
+						);
+					return $elecArray;
+				case "NC":
+					$elecArray = array('SYSC 3101', 'SYSC 3200', 'SYSC 3303', 'SYSC 3500', 'SYSC 3503', 'SYSC 3600', 'SYSC 3601', 'SYSC 4001', 
+						'SYSC 4101', 'SYSC 4005', 'SYSC 4005', 'SYSC 4106', 'SYSC 4120', 'SYSC 4502', 'SYSC 4504', 'SYSC 4505', 'SYSC 4507', 
+						'SYSC 4600', 'SYSC 4602', 'SYSC 4604', 'SYSC 4607', 'SYSC 4700', 'ELEC 3508', 'ELEC 3509', 'ELEC 3605', 'ELEC 3908', 
+						'ELEC 3909', 'ELEC 4502', 'ELEC 4503', 'ELEC 4505', 'ELEC 4506', 'ELEC 4609', 'ELEC 4702', 'ELEC 4703', 'ELEC 4704', 
+						'ELEC 4706', 'ELEC 4707', 'ELEC 4708', 'ELEC 4709');
+						return $elecArray;
+				default:
+					return false;
+			}
+		
+		} else {
+			return false;
+		}
+	
 	}
 ?>
