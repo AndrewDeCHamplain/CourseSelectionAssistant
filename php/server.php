@@ -177,6 +177,10 @@
 		$login = $_COOKIE['login'];
 		$coursedata = $_POST['coursedata'];
 		
+		// Save the courseData to the users profile so if they refresh they don't lose any changes made when getting
+		// their schedule.
+		$sql = "UPDATE userslist SET coursedata='$coursedata' WHERE login='$login'";
+		$data->execute($sql);
 		
 		$query = mysql_query("SELECT * FROM userslist WHERE login='{$login}'") or die(mysql_error());
 		$row = mysql_fetch_array($query);
@@ -235,9 +239,9 @@
 	
 		$schedule = getNumberOfOccurences($schedule);
 		$falltimetable = array();
-	//	$fallsemester = schedule($schedule, $falltimetable, 0, $fallId, 0);
+		//$fallsemester = schedule($schedule, $falltimetable, 0, $fallId, 0);
 		$wintertimetable = array();
-	//	$wintersemester = schedule($schedule, $wintertimetable, 0, $winterId, 0);
+		//$wintersemester = schedule($schedule, $wintertimetable, 0, $winterId, 0);				
 		$fallsemester =  scheduleTimetable($schedule, $falltimetable, 0);
 		$wintersemester =  scheduleTimetable($schedule, $wintertimetable, 1);
 		$result = "<schedule><fall>";
@@ -257,8 +261,7 @@
 				
 			
 		}
-		$result .= "</fall><winter>";
-				
+		$result .= "</fall><winter>";	
 		for($winterIdx = 0; $winterIdx<sizeof($schedule[1]); $winterIdx++){
 			$result .= "<course>".$schedule[1][$winterIdx]->SUBJ." ".$schedule[1][$winterIdx]->CRSE."</course>";
 		}
@@ -401,7 +404,6 @@
 	}
 	function getClass($semester, $semesterstring, $schedule, $timetable, $alltimetables)
 	{
-		
 		$count = 0;
 		for($i = 0;$i<sizeof($timetable);$i++)
 		{
@@ -422,7 +424,6 @@
 		{
 			if(hasConflicts($timetable, $class)) // if this class has no conflict do this
 			{
-				
 				
 				//************************************LLLAAAABBBBBBSSSSS START********************************************
 				$sec = $class['seq'];
@@ -456,7 +457,8 @@
 								
 							}
 						}
-					/*	else if(strpos($labs['seq'], "L")!==false || strpos($labs['seq'], "G")!==false )
+						
+						/*if(strpos($labs['seq'], "L")!==false || strpos($labs['seq'], "G")!==false )
 						{
 							
 							if(hasConflicts($timetable, $labs) )
@@ -470,9 +472,10 @@
 								
 							}
 						}*/
-				//	}
+					//}
 					$labs = mysql_fetch_array($query); 			
 				}	
+			
 				//************************************LLLAAAABBBBBBSSSSS END********************************************
 							
 			}
@@ -787,11 +790,6 @@
 			
 			$oldcoursestarttime = intval($arrayofcourses[$i]['starttime']);
 			$oldcourseendtime = intval($arrayofcourses[$i]['endtime']);
-			
-			if(strlen($oldcourseday) === 1)
-			{
-				
-			}
 			
 				if($oldcoursestarttime <= $newcoursestarttime && $oldcourseendtime >= $newcoursestarttime)
 				{
