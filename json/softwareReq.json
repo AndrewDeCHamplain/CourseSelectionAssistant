@@ -21,14 +21,14 @@
         { "SUBJ": "SYSC", "CRSE": "2001" },
         { "SUBJ": "SYSC", "CRSE": "2004" },
         { "SUBJ": "CCDP", "CRSE": "2100" },
-        { "SUBJ": "ELECTIVE", "CRSE": "" }
+        { "SUBJ": "ELECTIVE", "CRSE": "1-GS" }
     ],
     [
         { "SUBJ": "MATH", "CRSE": "1805" },
         { "SUBJ": "ELEC", "CRSE": "2607" },
         { "SUBJ": "SYSC", "CRSE": "2003" },
         { "SUBJ": "SYSC", "CRSE": "2100" },
-        { "SUBJ": "ELECTIVE", "CRSE": "" },
+        { "SUBJ": "ELECTIVE", "CRSE": "2-GS" },
 		{"SUBJ":"","CRSE":""}
     ],
     [
@@ -36,7 +36,7 @@
         { "SUBJ": "COMP", "CRSE": "3005" },
         { "SUBJ": "SYSC", "CRSE": "4001" },
         { "SUBJ": "SYSC", "CRSE": "3110" },
-        { "SUBJ": "ELECTIVE", "CRSE": "" },
+        { "SUBJ": "ELECTIVE", "CRSE": "3-NA" },
 		{"SUBJ":"","CRSE":""}
     ],
     [
@@ -52,8 +52,8 @@
         { "SUBJ": "SYSC", "CRSE": "4101" },
         { "SUBJ": "SYSC", "CRSE": "4120" },
         { "SUBJ": "SYSC", "CRSE": "4927" },
-        { "SUBJ": "ELECTIVE", "CRSE": "" },
-        { "SUBJ": "ELECTIVE", "CRSE": "" }
+        { "SUBJ": "ELECTIVE", "CRSE": "4-NA" },
+        { "SUBJ": "ELECTIVE", "CRSE": "5-NB" }
     ],
     [
         { "SUBJ": "SYSC", "CRSE": "4005" },
@@ -61,6 +61,6 @@
         { "SUBJ": "ECOR", "CRSE": "4995" },
         { "SUBJ": "SYSC", "CRSE": "4927" },
         { "SUBJ": "SYSC", "CRSE": "4806" },
-        { "SUBJ": "ELECTIVE", "CRSE": "" }
+        { "SUBJ": "ELECTIVE", "CRSE": "6-NA" }
     ]
 ]

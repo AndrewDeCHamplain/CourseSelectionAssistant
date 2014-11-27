@@ -4,7 +4,7 @@
 		{"SUBJ":"MATH","CRSE":"1004"},
 		{"SUBJ":"ECOR","CRSE":"1010"},
 		{"SUBJ":"CHEM","CRSE":"1101"},
-		{"SUBJ":"ELECTIVE","CRSE":""},
+		{"SUBJ":"ELECTIVE","CRSE":"1-GS"},
 		{"SUBJ":"","CRSE":""}
 	],
 	[
@@ -12,7 +12,7 @@
 		{"SUBJ":"PHYS","CRSE":"1004"},
 		{"SUBJ":"ECOR","CRSE":"1101"},
 		{"SUBJ":"ECOR","CRSE":"1606"},
-		{"SUBJ":"ELECTIVE","CRSE":""},
+		{"SUBJ":"ELECTIVE","CRSE":"2-GS"},
 		{"SUBJ":"","CRSE":""}
 	],
 	[
@@ -21,7 +21,7 @@
 		{"SUBJ":"SYSC","CRSE":"2006"},
 		{"SUBJ":"ELEC","CRSE":"2501"},
 		{"SUBJ":"CCDP","CRSE":"2100"},
-		{"SUBJ":"ELECTIVE","CRSE":""},
+		{"SUBJ":"SCI ELECTIVE","CRSE":"3-NA"},
 		{"SUBJ":"","CRSE":""}
 	],
 	[
@@ -45,7 +45,7 @@
 		{"SUBJ":"SYSC","CRSE":"3303"},
 		{"SUBJ":"ECOR","CRSE":"3800"},
 		{"SUBJ":"ELEC","CRSE":"3909"},
-		{"SUBJ":"ELECTIVE","CRSE":""},
+		{"SUBJ":"ELECTIVE","CRSE":"4-ND"},
 		{"SUBJ":"","CRSE":""}
 	],
 	[
@@ -53,15 +53,15 @@
 		{"SUBJ":"SYSC","CRSE":"4604"},
 		{"SUBJ":"SYSC","CRSE":"4504"},
 		{"SUBJ":"SYSC","CRSE":"4937"},
-		{"SUBJ":"ELECTIVE","CRSE":""},
-		{"SUBJ":"ELECTIVE","CRSE":""}
+		{"SUBJ":"ELECTIVE","CRSE":"5-NC"},
+		{"SUBJ":"ELECTIVE","CRSE":"6-ND"}
 	],
 	[
 		{"SUBJ":"SYSC","CRSE":"4700"},
 		{"SUBJ":"SYSC","CRSE":"4701"},
 		{"SUBJ":"ECOR","CRSE":"4995"},
 		{"SUBJ":"SYSC","CRSE":"4937"},
-		{"SUBJ":"ELECTIVE","CRSE":""},
-		{"SUBJ":"ELECTIVE","CRSE":""}
+		{"SUBJ":"ELECTIVE","CRSE":"7-NC"},
+		{"SUBJ":"ELECTIVE","CRSE":"8-GS"}
 	]
 ] 
