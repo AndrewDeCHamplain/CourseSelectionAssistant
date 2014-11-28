@@ -27,6 +27,9 @@ td.BIOL {
 	background-color: #FFFE02;
 }
 
+td.SCIELECTIVE {
+	background-color: #FFFE02;
+}
 td.ELEC {
 	background-color: #FE9905;
 }
@@ -47,4 +50,25 @@ td.ELECTIVE {
 	background-color: #C0C0C0;
 }
 
+.hoverTable{
+	width:80%; 
+	border-collapse:collapse; 
+}
+.hoverTable td{ 
+	padding:7px; border:#ffffff 1px solid;
+}
+/* Define the default color for all the table rows */
+.hoverTable tr{
+	background: #ffffff;
+}
+/* Define the hover highlight color for the table row */
+.hoverTable td:hover {
+	  background-color: #b0b0b0 !important;
+}
+.hoverTable td a {
+	display:block;
+	width:100%;
+	color: #000000;
+	text-decoration: none;
+}
 	

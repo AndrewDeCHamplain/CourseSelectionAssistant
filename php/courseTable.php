@@ -127,7 +127,7 @@
 								//****************************
 								
 							} else {
-								cell.innerHTML = courseArray[semIdx][classIdx-2].SUBJ + courseArray[semIdx][classIdx-2].CRSE;
+								cell.innerHTML = courseArray[semIdx][classIdx-2].SUBJ + " " + courseArray[semIdx][classIdx-2].CRSE;
 								cell.className = courseArray[semIdx][classIdx-2].SUBJ;
 								
 								var checkbox = document.createElement('input');
@@ -142,7 +142,6 @@
 								}
 								cell.appendChild(checkbox);
 							}
-							
 						}
 						courseDataIdx++;
 					}
@@ -154,9 +153,9 @@
 		//	console.log(electiveCourses.length)
 			for(var i=0;i<electiveCourses.length;i++)
 			{
-			
 				//Create array of options to be added
 				var splitcode = (electiveCourses[i][1].split("-"));
+
 			
 				var array = getElectiveInfo(program, splitcode[1])
 			//	console.log("i="+i+" elec array "+JSON.stringify(array));
@@ -165,7 +164,7 @@
 				selectList.id = "electiveOption"+i;
 				selectList.name = "electiveOption";
 				//console.log("electives: "+electiveCourses[i][0]+" "+electiveCourses[i][1]);
-			
+
 				myDiv.appendChild(selectList);
 
 				//Create and append the options
@@ -179,17 +178,49 @@
 			}
 			//**********************************************
 	
-	
-		
 		</script>
 <?php
+		echo '<br /><input type="hidden"  value="savecourses" name="typeofrequest"/>
+			<input type="hidden" id="coursedatastring" value="" name="coursedatastring"/>
+			<input type="submit" value="Save Selected Courses"/> <br />
+			
+			<div id="chooseSchedule"></div>
+			
+			<table id="tabTable" class="hoverTable">
+			</table>
+			
+			
+			';	
 	}
 ?>
 
 <script type="text/javascript"> 
-
-
+		  
+	function activateTab(page) {
+		var tabCtrl = document.getElementById('tabCtrl');
+		var pageToActivate = page.id;
+		for (var i = 0; i < tabCtrl.childNodes.length; i++) {
+			var node = tabCtrl.childNodes[i];
+			if (node.nodeType == 1) {
+			
+				node.style.display = (node == page) ? 'block' : 'none';
+			}
+		}
+	}
 	
+	function tabClicked(tabId) {
+		var tabTable = document.getElementById('tabTable'),
+		cells = tabTable.getElementsByTagName('td');
+		for (var i=0,len=cells.length; i<len; i++){
+		
+			if(cells[i].id == tabId){
+				cells[i].style.backgroundColor = '#b0b0b0';
+			} else {
+				cells[i].style.backgroundColor = '#ffffff';
+			}
+		}
+	}
+		
 	function getCourseSchedule(){
 		
 		// Update the users courseData in the database so it can be used by the server when building the schedule.
@@ -216,56 +247,109 @@
 				var fall = schedule[fallIndex];
 				var winter = schedule[winterIndex];
 				
-				/* 
-				* Creates a select menu for all the classes in the fall semester, this will be altered to work 
-				* with all the possible electives that the student will be able to take.
-				*/
-				console.log(fall);
-				console.log(winter);
-			/*	document.getElementById("schedule").innerHTML += "<p> Fall schedule <br /><select id='optsfall'>";
-				for(var i=0; i <fall.childNodes.length; i++){
-					
-					var info = fall.childNodes[i].innerHTML;
-					for(var j=0; j <info.childNodes.length; j++)
-					{
-						var course = info.childNodes[j].innerHTML;
-						document.getElementById("optsfall").innerHTML += "<option value='0'>"+course+"</option>";
-					}					
-				}
-				document.getElementById("schedule").innerHTML += "</select></p><p> Winter Schedule<br /><select id='optswinter'>";
+				document.getElementById("chooseSchedule").innerHTML = "<h2>Choose Your Schedule From the Following Options and Click Submit</h2>"
 				
-				for(var i=0; i <winter.childNodes.length; i++){
-					
-					var info = winter.childNodes[i].innerHTML;
-					for(var j=0; j <info.childNodes.length; j++)
-					{
-						var course = info.childNodes[j].innerHTML;
-						document.getElementById("optswinter").innerHTML += "<option value='0'>"+course+"</option>";
-					}					
+				// The following 3 if statments are to remove the element for if the 
+				// user pressed 'Get Schedule' twice. (So there's no duplicates).
+				if(document.getElementById("tabCtrl") != null){
+					document.getElementById("tabCtrl").remove();
+				}
+				if(document.getElementById("tabTableRow") != null){
+					document.getElementById("tabTableRow").remove();
 				}
 				
-				document.getElementById("schedule").innerHTML += "<p> Fall schedule";
-				for(var i=0; i <fall.childNodes.length; i++){
-					
-					var info = fall.childNodes[i].innerHTML;
-					document.getElementById("schedule").innerHTML += "<b>Class #: "+info +"<br/>";
-				}
-				document.getElementById("schedule").innerHTML += "</p><p> Winter Schedule";
-				for(var i=0; i <winter.childNodes.length; i++){
+				var tabRow = document.getElementById("tabTable").insertRow();
+				tabRow.id = "tabTableRow";
+				
+				var tabCtrlDiv = document.createElement('div');
+				tabCtrlDiv.id = "tabCtrl";
+				document.getElementById("home").appendChild(tabCtrlDiv);
+				
+				
+				
+				for(var tabsIdx = 0; tabsIdx< fall.childNodes.length; tabsIdx++){
+					var tab = "tab"+(tabsIdx+1);
+					var page = "page"+(tabsIdx+1);
+					var cell = document.getElementById("tabTableRow").insertCell(tabsIdx);
+					cell.innerHTML = "<a>Option "+ (tabsIdx+1)+"</a>";
+					var tempA = cell.getElementsByTagName("a");
+					tempA[0].setAttribute('href', 'javascript:activateTab('+page+');');
+					cell.id = tabsIdx+1;
+					cell.setAttribute('onclick','tabClicked('+(tabsIdx+1)+');');
 
-					var info = winter.childNodes[i].innerHTML;
-					document.getElementById("schedule").innerHTML += "<b>Class #: "+info +"<br/>";
+				}
+
+				for(var timetableIdx=0; timetableIdx <fall.childNodes.length; timetableIdx++){
+					var iDiv = document.createElement('div');
+					iDiv.id = "page"+(timetableIdx+1);
+					iDiv.name = iDiv.id;
+					iDiv.style.display = 'none';
+					iDiv.innerHTML = "<p> <h3>Fall Schedule</h3>";
+					var tabCtrl = document.getElementById("tabCtrl");
+					tabCtrl.appendChild(iDiv);
+					for(var courseIdx = 0; courseIdx<fall.childNodes[timetableIdx].childNodes.length; courseIdx++){
 						
-				}*/
+						var info = fall.childNodes[timetableIdx].childNodes[courseIdx].innerHTML;
+						iDiv.innerHTML += "<div>"+ info +"</div>";
+					}
+					iDiv.innerHTML += "</p><p><h3>Winter Schedule</h3>"
+				}
 				
+				for(var timetableIdx=0; timetableIdx <winter.childNodes.length; timetableIdx++){
+					var iDiv = document.getElementById("page"+(timetableIdx+1));
+					for(var courseIdx = 0; courseIdx<winter.childNodes[timetableIdx].childNodes.length; courseIdx++){
+					
+						var info = winter.childNodes[timetableIdx].childNodes[courseIdx].innerHTML;
+						iDiv.innerHTML += "<div>"+ info +"</div>";
+					}
+					iDiv.innerHTML += "</p>";
+					
+					// Create and add the submitSchedule form
+					var submitForm = document.createElement("form");
+					var element1 = document.createElement("input"); 
+					var element2 = document.createElement("input");  
+					var element3 = document.createElement("input"); 
+					var element4 = document.createElement("input"); 
+					var element5 = document.createElement("input"); 
+
+					submitForm.method = "post";
+					submitForm.action = "server.php"; 
+					submitForm.setAttribute("onsubmit", "return printSchedule();");
+
+					element1.value="submitschedule";
+					element1.name="typeofrequest";
+					element1.type="hidden";
+					submitForm.appendChild(element1);  
+
+					element2.value="";
+					element2.type="hidden";
+					element2.name="fallschedule";
+					element2.id ="fallschedule"+(timetableIdx+1);
+					submitForm.appendChild(element2);
+					
+					element3.value="";
+					element3.type="hidden";
+					element3.name="winterschedule";
+					element3.id ="winterschedule"+(timetableIdx+1);
+					submitForm.appendChild(element3);
+					
+					element4.value=courseData;
+					element4.type="hidden";
+					element4.name="coursedatastring";
+					submitForm.appendChild(element4);
+					
+					element5.value="Submit your Schedule";
+					element5.type="submit";
+					submitForm.appendChild(element5);
+					
+					iDiv.appendChild(submitForm);
+				}
 				//console.log(response);
 			}
 		};
 		
 		// Sending the courseData with the XMLHttpRequest
-		
-		
-		
+
 		//************ADDED SENDING ELECTIVE INFO ALONG WITH HTTP POST
 		var elements = document.getElementsByName('electiveOption');
 		//console.log(elements[0]);
@@ -280,10 +364,71 @@
 		//console.log(electiveString);
 		//****************************************************
 		
-		
-		
 		xmlHttp.send("typeofrequest=getschedule&coursedata="+courseData+""+electiveString);
+		document.getElementById("chooseSchedule").innerHTML = "<h2>Processing... </h2>"
+	}
+	
+	function printSchedule(){
+	
+		var fallString="", winterString="", booleanIsFall = true;
+		var currentSchedule = document.getElementById('tabCtrl');
+		
+		for(var scheduleIdx=0; scheduleIdx<currentSchedule.childNodes.length; scheduleIdx++){
+			if(currentSchedule.childNodes[scheduleIdx].style.display == 'block'){
 
+				var pageDivs = currentSchedule.childNodes[scheduleIdx].childNodes;
+				
+				// only go to pageDivs.length-1 because the last element is a form so we can skip that
+				for(var nodeIdx=0; nodeIdx<pageDivs.length-1; nodeIdx++){
+					if(pageDivs[nodeIdx].innerHTML == "Winter Schedule"){
+						booleanIsFall = false;
+					} 
+					if(booleanIsFall){
+						if(pageDivs[nodeIdx].innerHTML != " " && pageDivs[nodeIdx].innerHTML != ""){
+							var courseInfoSplit = (pageDivs[nodeIdx].innerHTML).split("||");
+							
+							// This if statement stops Fall Schedule and Winter Schedule from being added into string
+							if(courseInfoSplit.length > 1){
+							
+								var courseNameSplit = courseInfoSplit[0].split("  ");
+								var subjAndCrse = courseNameSplit[0].match(/.{4}/g);
+
+								// nodeIdx+2 to compensate for removing the form and h3 lines
+								if(pageDivs[nodeIdx+3].innerHTML == "Winter Schedule"){
+									fallString += (subjAndCrse[0] + "," + subjAndCrse[1] + "," + courseNameSplit[1]);
+								} else {
+									fallString += (subjAndCrse[0] + "," + subjAndCrse[1] + "," + courseNameSplit[1] + ",");
+								}
+							}
+						
+						}
+					
+					} else {
+						if(pageDivs[nodeIdx].innerHTML != " " && pageDivs[nodeIdx].innerHTML != ""){
+							var courseInfoSplit = (pageDivs[nodeIdx].innerHTML).split("||");
+							
+							// This if statement stops Fall Schedule and Winter Schedule from being added into string
+							if(courseInfoSplit.length > 1){
+							
+								var courseNameSplit = courseInfoSplit[0].split("  ");
+								var subjAndCrse = courseNameSplit[0].match(/.{4}/g);
+
+								// nodeIdx+3 to compensate for removing the form and two h3 lines
+								if((nodeIdx+3) != pageDivs.length){
+									winterString += (subjAndCrse[0] + "," + subjAndCrse[1] + "," + courseNameSplit[1] + ",");
+								} else {
+									winterString += (subjAndCrse[0] + "," + subjAndCrse[1] + "," + courseNameSplit[1]);
+								}
+							}
+						
+						}
+					}
+				
+				}
+				document.getElementById("fallschedule"+(scheduleIdx+1)).value = fallString;
+				document.getElementById("winterschedule"+(scheduleIdx+1)).value = winterString;
+			}
+		}	
 	}
 	
 	function currentData(){

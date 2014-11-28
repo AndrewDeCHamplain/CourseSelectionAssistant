@@ -49,8 +49,10 @@
 			var div4 = document.getElementById("home"),
 			div3 = document.getElementById("updateview"),
 			div2 = document.getElementById("setstreamview"),
-			div1 = document.getElementById("logoutview");
+			div1 = document.getElementById("logoutview"),
+			div0 = document.getElementById("schedule");
 			
+			div0.style.display='none';
 			div1.style.display='none';
 			div2.style.display='none';
 			div3.style.display='none';
@@ -61,8 +63,10 @@
 			var div4 = document.getElementById("setstreamview"),
 			div3 = document.getElementById("updateview"),
 			div2 = document.getElementById("home"),
-			div1 = document.getElementById("logoutview");
+			div1 = document.getElementById("logoutview"),
+			div0 = document.getElementById("schedule");
 			
+			div0.style.display='none';
 			div1.style.display='none';
 			div2.style.display='none';
 			div3.style.display='none';
@@ -74,8 +78,10 @@
 			var div4 = document.getElementById("updateview"),
 			div3 = document.getElementById("home"),
 			div2 = document.getElementById("setstreamview"),
-			div1 = document.getElementById("logoutview");
+			div1 = document.getElementById("logoutview"),
+			div0 = document.getElementById("schedule");
 			
+			div0.style.display='none';
 			div1.style.display='none';
 			div2.style.display='none';
 			div3.style.display='none';
@@ -88,14 +94,30 @@
 			var div4 = document.getElementById("logoutview"),
 			div3 = document.getElementById("updateview"),
 			div2 = document.getElementById("setstreamview"),
-			div1 = document.getElementById("home");
+			div1 = document.getElementById("home"),
+			div0 = document.getElementById("schedule");
 			
+			div0.style.display='none';
 			div1.style.display='none';
 			div2.style.display='none';
 			div3.style.display='none';
 			div4.style.display='block';
 		}
 		
+		function GetSchedule(){
+			var div4 = document.getElementById("logoutview"),
+			div3 = document.getElementById("updateview"),
+			div2 = document.getElementById("setstreamview"),
+			div1 = document.getElementById("home"),
+			div0 = document.getElementById("schedule");
+			
+			div0.style.display='block';
+			div1.style.display='none';
+			div2.style.display='none';
+			div3.style.display='none';
+			div4.style.display='none';
+		
+		}
 		function cancelUpdate(){
 			var div = document.getElementById("updateview");
 			div.style.display='none';
@@ -148,11 +170,14 @@
 			var elem = document.getElementById("coursedatastring");
 			elem.value = strCoursesSelected;
 		}
+		
+		
 	</script>
 </head>
 <body>
 	<div style="text-align:center"> 
 		<button onclick="Home()">Home</button>
+		<button onclick="GetSchedule()">Your Schedule </button>
 		<button onclick="Update()">Change password</button>
 		<button onclick="Logout()">Logout </button>
 		<button onclick="SetStream()">Set your Stream </button>
@@ -162,18 +187,42 @@
 	<h3>Your Current Stream is <?php echo $program; ?></h3>
 	
 	<div id="home" style="display:block">
-		<form method="post" id="getcoursedata" action="server.php" onsubmit="return getCourseData()">
-			<?php
-				$query = mysql_query("SELECT * FROM userslist WHERE login='{$login}'") or die(mysql_error());
+		<form method="post" id="getcoursedata" action="server.php" onsubmit="return getCourseData()">	
+		<?php
+			$query = mysql_query("SELECT * FROM userslist WHERE login='{$login}'") or die(mysql_error());
 
-				$row = mysql_fetch_array($query);
-				createCourseTable($row['stream'], $row['coursedata']);
-			?>
-			<br />
-			<input type="hidden"  value="savecourses" name="typeofrequest"/>
-			<input type="hidden" id="coursedatastring" value="" name="coursedatastring"/>
-			<input type="submit" value="Save Selected Courses"/>
+			$row = mysql_fetch_array($query);
+			createCourseTable($row['stream'], $row['coursedata']);
+		?>
 		</form>
+		
+	</div>
+	
+	<div id="schedule" style="display:none">
+		<div id="viewyourschedule">
+		<?php
+			$query = mysql_query("SELECT * FROM userslist WHERE login='{$login}'") or die(mysql_error());
+			$row = mysql_fetch_array($query);
+			
+			if($row['fallschedule'] == "" && $row['fallschedule'] == ""){
+				echo '<br /><br /><h2> You Have Not Created A Schedule Yet, Head Over to Your "Home" Tab to Build It! </h2>';
+			
+			} else{
+			
+				$fallschedule = explode(',', $row['fallschedule']);
+				$winterschedule = explode(',', $row['winterschedule']);
+				
+				echo '<h3>Fall Schedule</h3>';
+				for($fallIdx=0; $fallIdx<sizeof($fallschedule); $fallIdx++){
+					echo $fallschedule[$fallIdx].'<br />';
+				}
+				echo '<h3>Winter Schedule</h3>';
+				for($winterIdx=0; $winterIdx<sizeof($winterschedule); $winterIdx++){
+					echo $winterschedule[$winterIdx].'<br />';
+				}
+			}
+		?>
+		</div>
 	</div>
 	
 	<div id="updateview" style="display:none">
