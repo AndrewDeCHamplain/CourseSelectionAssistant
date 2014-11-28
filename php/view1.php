@@ -27,7 +27,7 @@
 	<div id="loginview">
 		<form method="post" action="server.php">
 			Login : <input type="text" name="login"/><br/>
-			Password : <input type="text" name="password"/><br/>
+			Password : <input type="password" name="password"/><br/>
 			<input type="hidden" value="login" name="typeofrequest"/>
 			<input type="submit" value="Login"/>
 		</form>
@@ -38,7 +38,7 @@
 			Login : <input type="text" name="login"/><br/>
 			Firstname : <input type="text" name="firstname"/><br/>
 			Lastname : <input type="text" name="lastname"/><br/>
-			Password : <input type="text" name="password"/><br/>
+			Password : <input type="password" name="password"/><br/>
 			Student Number : <input type="number_format" name="studentnumber"/><br/>
 			<select name="stream" id="stream">
 				<option>Computer Systems Engineering</option>
