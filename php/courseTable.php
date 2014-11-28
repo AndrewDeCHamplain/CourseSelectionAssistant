@@ -62,6 +62,11 @@
 			</tr>
 		</table>';
 		/********** Table has now been made ***********/
+		
+		//**********ADDED A DIV FOR ELECTIVES
+		echo '</br></br>';
+		echo '<div id="electiveDiv"></div>';
+		//**********************************
 
 		// Create an array of php data to be used in JS
 		$jsdata = array('courseArray' => $array, 'courseData' => $courseData, 'program'=>$program);
@@ -78,6 +83,9 @@
 				courseDataIdx = 0,
 				program = JSDATA.program;
 			
+			//***********ADDED ELECTIVE ARRAY
+			var electiveCourses = [];
+			//****************************
 			// Get the courseData from a string into an array
 			for (var i = 0, length = courseDataString.length; i < length; i += 1) {
 				courseData.push(+courseDataString.charAt(i));
@@ -93,7 +101,9 @@
 						var cell = row.cells[semIdx];
 						if(courseArray[semIdx][classIdx-2].SUBJ + courseArray[semIdx][classIdx-2].CRSE !== ""){
 							if(courseArray[semIdx][classIdx-2].SUBJ.indexOf("ELECTIVE") > -1){
-								cell.innerHTML = courseArray[semIdx][classIdx-2].SUBJ;
+								//*****ADDED DISPLAY FOR ENDING OF ELECTIVES
+								cell.innerHTML = courseArray[semIdx][classIdx-2].SUBJ + courseArray[semIdx][classIdx-2].CRSE;
+								//*************************************
 								cell.className = (courseArray[semIdx][classIdx-2].SUBJ).replace(/\s+/g, '');
 								
 								var elecInfoArray = courseArray[semIdx][classIdx-2].CRSE.split(',');
@@ -112,6 +122,9 @@
 									checkbox.checked = false;
 								}
 								cell.appendChild(checkbox);
+								//************** ADDED PUSHING TO ELECTIVE ARRAY
+								electiveCourses.push([""+courseArray[semIdx][classIdx-2].SUBJ, ""+courseArray[semIdx][classIdx-2].CRSE ]);
+								//****************************
 								
 							} else {
 								cell.innerHTML = courseArray[semIdx][classIdx-2].SUBJ + courseArray[semIdx][classIdx-2].CRSE;
@@ -129,18 +142,53 @@
 								}
 								cell.appendChild(checkbox);
 							}
-				
+							
 						}
 						courseDataIdx++;
 					}
 				}	
 			}
+			//*******************ADDED DYNAMIC OPTIONS FOR ELECTIVES
+			//console.log(electiveCourses);
+			var myDiv = document.getElementById("electiveDiv");
+		//	console.log(electiveCourses.length)
+			for(var i=0;i<electiveCourses.length;i++)
+			{
+			
+				//Create array of options to be added
+				var splitcode = (electiveCourses[i][1].split("-"));
+			
+				var array = getElectiveInfo(program, splitcode[1])
+			//	console.log("i="+i+" elec array "+JSON.stringify(array));
+				//Create and append select list
+				var selectList = document.createElement("select");
+				selectList.id = "electiveOption"+i;
+				selectList.name = "electiveOption";
+				//console.log("electives: "+electiveCourses[i][0]+" "+electiveCourses[i][1]);
+			
+				myDiv.appendChild(selectList);
+
+				//Create and append the options
+				for (var j = 0; j < array.length; j++) {
+					var option = document.createElement("option");
+					option.value = array[j];
+					option.text = array[j];
+					selectList.appendChild(option);
+				}
+				selectList.label = electiveCourses[i][0]+" "+electiveCourses[i][1];
+			}
+			//**********************************************
+	
+	
+		
 		</script>
 <?php
 	}
 ?>
 
 <script type="text/javascript"> 
+
+
 	
 	function getCourseSchedule(){
 		
@@ -215,7 +263,26 @@
 		};
 		
 		// Sending the courseData with the XMLHttpRequest
-		xmlHttp.send("typeofrequest=getschedule&coursedata="+courseData);
+		
+		
+		
+		//************ADDED SENDING ELECTIVE INFO ALONG WITH HTTP POST
+		var elements = document.getElementsByName('electiveOption');
+		//console.log(elements[0]);
+		//console.log("element length = " +elements.length);
+		var electiveString = "";
+		for(var i =0;i<elements.length;i++)
+		{
+			
+			electiveString = electiveString + "&electives[]="+elements[i].options[elements[i].selectedIndex].text;
+		}
+		
+		//console.log(electiveString);
+		//****************************************************
+		
+		
+		
+		xmlHttp.send("typeofrequest=getschedule&coursedata="+courseData+""+electiveString);
 
 	}
 	
@@ -285,14 +352,23 @@
 		return strCoursesSelected;
 	}
 
-	function getElectiveInfo(program, electiveNum, electiveNote){
+	function getElectiveInfo(program, electiveNote){
 	
 		var elecArray = [];
 		
 		if(program === "Computer Systems Engineering"){
 			switch(electiveNote){
 				case "GS":
-					elecArray = ['GS'];
+					elecArray = ['AFRI 1001', 'AFRI 1002', 'AFRI 2001', 'ALDS 1001', 'ALDS 2201', 'ALDS 2202', 'ALDS 2203', 'ALDS 2701',
+						'ALDS 2705', 'ANTH 1001', 'ANTH 1002', 'ANTH 2020', 'ANTH 2040', 'ANTH 2550', 'ANTH 2610', 'ANTH 2620', 'ANTH 2630',
+						'ANTH 2640', 'ANTH 2670', 'ANTH 2850', 'ARTH 1100', 'ARTH 1101', 'ARTH 1105', 'ARTH 1200', 'ARTH 1201', 'ARTH 2002',
+						'ARTH 2006', 'ARTH 2007', 'ARTH 2102', 'ARTH 2202', 'ARTH 2310', 'ARTH 2405', 'ARTH 2510', 'ARTH 2600', 'ARTH 2601',
+						'ARTH 2610', 'BUSI 2101', 'CDNS 1101', 'CDNS 2000', 'CDNS 2300', 'CDNS 2400', 'CGSC 1001', 'CGSC 2001', 'CHST 1000',
+						'CHST 1002', 'CLCV 1002', 'ENGL 2005', 'ENGL 2011', 'ENGL 2100', 'ENGL 2102', 'FILM 2101', 'FILM 2106', 'FILM 2201',
+						'HIST 2001', 'HIST 2002', 'HIST 2103', 'HIST 2107', 'HIST 2109', 'HUMR 2001', 'HUMR 2202', 'JOUR 2106', 'LAWS 2105',
+						'LAWS 2105', 'LAWS 2201', 'LAWS 2202', 'LING 1100', 'MUSI 1001', 'MUSI 1002', 'MUSI 2005', 'MUSI 2007', 'MUSI 2100',
+						'PHIL 1000', 'PHIL 1200', 'PHIL 1301', 'PHIL 2001', 'PHIL 2103', 'PHIL 2510', 'RELI 1710', 'RELI 1730', 'RELI 1731', 
+						'RELI 2110', 'RELI 2220', 'SOCI 1001', 'SOCI 1002', 'SOCI 2010', 'SOCI 2020', 'SOCI 2050', 'TSES 3001', 'WGST 2800'];
 					return elecArray;
 				case "NB":
 					elecArray = [
@@ -310,7 +386,16 @@
 		} else if (program === "Software Engineering"){
 			switch(electiveNote){
 				case "GS":
-					elecArray = ['GS'];
+					elecArray = ['AFRI 1001', 'AFRI 1002', 'AFRI 2001', 'ALDS 1001', 'ALDS 2201', 'ALDS 2202', 'ALDS 2203', 'ALDS 2701',
+						'ALDS 2705', 'ANTH 1001', 'ANTH 1002', 'ANTH 2020', 'ANTH 2040', 'ANTH 2550', 'ANTH 2610', 'ANTH 2620', 'ANTH 2630',
+						'ANTH 2640', 'ANTH 2670', 'ANTH 2850', 'ARTH 1100', 'ARTH 1101', 'ARTH 1105', 'ARTH 1200', 'ARTH 1201', 'ARTH 2002',
+						'ARTH 2006', 'ARTH 2007', 'ARTH 2102', 'ARTH 2202', 'ARTH 2310', 'ARTH 2405', 'ARTH 2510', 'ARTH 2600', 'ARTH 2601',
+						'ARTH 2610', 'BUSI 2101', 'CDNS 1101', 'CDNS 2000', 'CDNS 2300', 'CDNS 2400', 'CGSC 1001', 'CGSC 2001', 'CHST 1000',
+						'CHST 1002', 'CLCV 1002', 'ENGL 2005', 'ENGL 2011', 'ENGL 2100', 'ENGL 2102', 'FILM 2101', 'FILM 2106', 'FILM 2201',
+						'HIST 2001', 'HIST 2002', 'HIST 2103', 'HIST 2107', 'HIST 2109', 'HUMR 2001', 'HUMR 2202', 'JOUR 2106', 'LAWS 2105',
+						'LAWS 2105', 'LAWS 2201', 'LAWS 2202', 'LING 1100', 'MUSI 1001', 'MUSI 1002', 'MUSI 2005', 'MUSI 2007', 'MUSI 2100',
+						'PHIL 1000', 'PHIL 1200', 'PHIL 1301', 'PHIL 2001', 'PHIL 2103', 'PHIL 2510', 'RELI 1710', 'RELI 1730', 'RELI 1731', 
+						'RELI 2110', 'RELI 2220', 'SOCI 1001', 'SOCI 1002', 'SOCI 2010', 'SOCI 2020', 'SOCI 2050', 'TSES 3001', 'WGST 2800'];
 					return elecArray;
 				case "NA":
 					elecArray = ['SYSC 3200', 'SYSC 3600', 'SYSC 3601', 'SYSC 4102', 'SYSC 4502', 'SYSC 4604',
@@ -326,7 +411,16 @@
 		} else if (program === "Communication Engineering"){
 			switch(electiveNote){
 				case "GS":
-					elecArray = ['GS'];
+					elecArray = ['AFRI 1001', 'AFRI 1002', 'AFRI 2001', 'ALDS 1001', 'ALDS 2201', 'ALDS 2202', 'ALDS 2203', 'ALDS 2701',
+						'ALDS 2705', 'ANTH 1001', 'ANTH 1002', 'ANTH 2020', 'ANTH 2040', 'ANTH 2550', 'ANTH 2610', 'ANTH 2620', 'ANTH 2630',
+						'ANTH 2640', 'ANTH 2670', 'ANTH 2850', 'ARTH 1100', 'ARTH 1101', 'ARTH 1105', 'ARTH 1200', 'ARTH 1201', 'ARTH 2002',
+						'ARTH 2006', 'ARTH 2007', 'ARTH 2102', 'ARTH 2202', 'ARTH 2310', 'ARTH 2405', 'ARTH 2510', 'ARTH 2600', 'ARTH 2601',
+						'ARTH 2610', 'BUSI 2101', 'CDNS 1101', 'CDNS 2000', 'CDNS 2300', 'CDNS 2400', 'CGSC 1001', 'CGSC 2001', 'CHST 1000',
+						'CHST 1002', 'CLCV 1002', 'ENGL 2005', 'ENGL 2011', 'ENGL 2100', 'ENGL 2102', 'FILM 2101', 'FILM 2106', 'FILM 2201',
+						'HIST 2001', 'HIST 2002', 'HIST 2103', 'HIST 2107', 'HIST 2109', 'HUMR 2001', 'HUMR 2202', 'JOUR 2106', 'LAWS 2105',
+						'LAWS 2105', 'LAWS 2201', 'LAWS 2202', 'LING 1100', 'MUSI 1001', 'MUSI 1002', 'MUSI 2005', 'MUSI 2007', 'MUSI 2100',
+						'PHIL 1000', 'PHIL 1200', 'PHIL 1301', 'PHIL 2001', 'PHIL 2103', 'PHIL 2510', 'RELI 1710', 'RELI 1730', 'RELI 1731', 
+						'RELI 2110', 'RELI 2220', 'SOCI 1001', 'SOCI 1002', 'SOCI 2010', 'SOCI 2020', 'SOCI 2050', 'TSES 3001', 'WGST 2800'];
 					return elecArray;
 				case "NA":
 					elecArray = ['GS'];
@@ -351,7 +445,16 @@
 		} else if (program === "Biomedical Engineering"){
 			switch(electiveNote){	
 				case "GS":
-					elecArray = ['GS'];
+					elecArray = ['AFRI 1001', 'AFRI 1002', 'AFRI 2001', 'ALDS 1001', 'ALDS 2201', 'ALDS 2202', 'ALDS 2203', 'ALDS 2701',
+						'ALDS 2705', 'ANTH 1001', 'ANTH 1002', 'ANTH 2020', 'ANTH 2040', 'ANTH 2550', 'ANTH 2610', 'ANTH 2620', 'ANTH 2630',
+						'ANTH 2640', 'ANTH 2670', 'ANTH 2850', 'ARTH 1100', 'ARTH 1101', 'ARTH 1105', 'ARTH 1200', 'ARTH 1201', 'ARTH 2002',
+						'ARTH 2006', 'ARTH 2007', 'ARTH 2102', 'ARTH 2202', 'ARTH 2310', 'ARTH 2405', 'ARTH 2510', 'ARTH 2600', 'ARTH 2601',
+						'ARTH 2610', 'BUSI 2101', 'CDNS 1101', 'CDNS 2000', 'CDNS 2300', 'CDNS 2400', 'CGSC 1001', 'CGSC 2001', 'CHST 1000',
+						'CHST 1002', 'CLCV 1002', 'ENGL 2005', 'ENGL 2011', 'ENGL 2100', 'ENGL 2102', 'FILM 2101', 'FILM 2106', 'FILM 2201',
+						'HIST 2001', 'HIST 2002', 'HIST 2103', 'HIST 2107', 'HIST 2109', 'HUMR 2001', 'HUMR 2202', 'JOUR 2106', 'LAWS 2105',
+						'LAWS 2105', 'LAWS 2201', 'LAWS 2202', 'LING 1100', 'MUSI 1001', 'MUSI 1002', 'MUSI 2005', 'MUSI 2007', 'MUSI 2100',
+						'PHIL 1000', 'PHIL 1200', 'PHIL 1301', 'PHIL 2001', 'PHIL 2103', 'PHIL 2510', 'RELI 1710', 'RELI 1730', 'RELI 1731', 
+						'RELI 2110', 'RELI 2220', 'SOCI 1001', 'SOCI 1002', 'SOCI 2010', 'SOCI 2020', 'SOCI 2050', 'TSES 3001', 'WGST 2800'];
 					return elecArray;
 				case "NA":
 					elecArray = ['BIOL 2201', 'BIOL 2005', 'CHEM 2203'];

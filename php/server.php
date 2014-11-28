@@ -176,7 +176,8 @@
 		
 		$login = $_COOKIE['login'];
 		$coursedata = $_POST['coursedata'];
-		
+		$elecarray = $_POST['electives'];
+		$electivecount = 0;
 		// Save the courseData to the users profile so if they refresh they don't lose any changes made when getting
 		// their schedule.
 		$sql = "UPDATE userslist SET coursedata='$coursedata' WHERE login='$login'";
@@ -186,20 +187,30 @@
 		$row = mysql_fetch_array($query);
 		$program = $row['stream'];
 		
-		
+		$result = "";
 		$programArray = returnCourseArray($program);
 		$coursedataarray = getCourseDataArray($coursedata);
 		$yearstanding = getYearStanding($coursedataarray);
 		$completedcourses = getCompletedCourseArray($coursedataarray, $programArray);
 
 		for($semIdx = 0; $semIdx<$numOfSemesters; $semIdx++){
-			for($courseIdx = 0; $courseIdx<$numClassesPerSemester; $courseIdx++){
+
+
+			for($courseIdx = 0; $courseIdx< 5; $courseIdx++){
 				
-					if(/*($semIdx % 2) === $fallId && */sizeof($schedule[$fallId]) < 5){
+					if(/*($semIdx % 2) === $fallId && */sizeof($schedule[$fallId]) <  5 ){
 						if($coursedataarray[$semIdx][$courseIdx] == 0  )
 						{
-				
-							if($programArray[$semIdx][$courseIdx]->SUBJ !== 'ELECTIVE'){
+							//strpos($schedule[ $i][$j]->SUBJ, "ELECTIVE")!==false
+							if (strpos($programArray[$semIdx][$courseIdx]->SUBJ, "ELECTIVE")!==false){
+								array_push($schedule[$fallId], $programArray[0][0]);
+								$temp =  explode(" ", $elecarray[$electivecount]);
+								$electivecount = $electivecount+1;
+								$schedule[$fallId][sizeof($schedule[$fallId])-1]->SUBJ = $temp[0];
+								$schedule[$fallId][sizeof($schedule[$fallId])-1]->CRSE = $temp[1];
+								$coursedataarray[$semIdx][$courseIdx] = 2;
+							}
+							else if($programArray[$semIdx][$courseIdx]->SUBJ !== ""){
 								$query = mysql_query("SELECT * FROM falldata WHERE subj='{$programArray[$semIdx][$courseIdx]->SUBJ}' AND 
 									crse='{$programArray[$semIdx][$courseIdx]->CRSE}' LIMIT 1") or die(mysql_error());
 								if(mysql_fetch_array($query) !== false){
@@ -211,20 +222,26 @@
 								}
 								
 							}
-							else{
-								//array_push($schedule[$fallId], $programArray[$semIdx][$courseIdx]);
-								//$coursedataarray[$semIdx][$courseIdx] = 2;
-							}
 							
 						}
-					
+						
 					} 
 
-					 if (/*($semIdx % 2) === $winterId &&*/ sizeof($schedule[$winterId]) < 5){
+					if (/*($semIdx % 2) === $winterId &&*/ sizeof($schedule[$winterId]) < 5){
 						if($coursedataarray[$semIdx][$courseIdx] == 0  )
 						{
 				
-							if($programArray[$semIdx][$courseIdx]->SUBJ !== 'ELECTIVE'){
+							if (strpos($programArray[$semIdx][$courseIdx]->SUBJ, "ELECTIVE")!==false)
+							{
+								
+								array_push($schedule[$winterId], $programArray[0][0]);
+								$temp =  explode(" ", $elecarray[$electivecount]);
+								$electivecount = $electivecount+1;
+								$schedule[$winterId][sizeof($schedule[$winterId])-1]->SUBJ = $temp[0];
+								$schedule[$winterId][sizeof($schedule[$winterId])-1]->CRSE = $temp[1];
+								$coursedataarray[$semIdx][$courseIdx] = 2;
+							}
+							else if($programArray[$semIdx][$courseIdx]->SUBJ !== ""){
 								$query = mysql_query("SELECT * FROM winterdata WHERE subj='{$programArray[$semIdx][$courseIdx]->SUBJ}' AND 
 									crse='{$programArray[$semIdx][$courseIdx]->CRSE}' LIMIT 1") or die(mysql_error());
 								if(mysql_fetch_array($query) !== false){
@@ -235,29 +252,27 @@
 									}
 								}
 							}
-							else
-							{
-							//	array_push($schedule[$fallId], $programArray[$semIdx][$courseIdx]);
-								//$coursedataarray[$semIdx][$courseIdx] = 2;
-							}
+							
 						}
+					
 					}
 				
 			}
 		}
 	
 		$schedule = getNumberOfOccurences($schedule);
+	
 		$falltimetable = array();
 		//$fallsemester = schedule($schedule, $falltimetable, 0, $fallId, 0);
 		$wintertimetable = array();
 		//$wintersemester = schedule($schedule, $wintertimetable, 0, $winterId, 0);				
 		$fallsemester =  scheduleTimetable($schedule, $falltimetable, 0, $program);
 		$wintersemester =  scheduleTimetable($schedule, $wintertimetable, 1, $program);
-		$result = "<schedule><fall>";
+		$result = $result."<schedule><fall>";
 		
-		for($fallIdx = 0; $fallIdx<sizeof($schedule[0]); $fallIdx++){
+		/*for($fallIdx = 0; $fallIdx<sizeof($schedule[0]); $fallIdx++){
 			$result .= "<course>".$schedule[0][$fallIdx]->SUBJ." ".$schedule[0][$fallIdx]->CRSE."</course>";
-		}
+		}*/
 		for($i = 0;$i<sizeof($fallsemester);$i++)
 		{
 				$result .= "<timetable>";
@@ -271,9 +286,9 @@
 			
 		}
 		$result .= "</fall><winter>";	
-		for($winterIdx = 0; $winterIdx<sizeof($schedule[1]); $winterIdx++){
+	/*	for($winterIdx = 0; $winterIdx<sizeof($schedule[1]); $winterIdx++){
 			$result .= "<course>".$schedule[1][$winterIdx]->SUBJ." ".$schedule[1][$winterIdx]->CRSE."</course>";
-		}
+		}*/
 	
 		for($i = 0;$i<sizeof($wintersemester);$i++)
 		{
@@ -291,6 +306,105 @@
 		
 		header("content-type: text/xml");
 		echo $result;
+				//echo $fallsemester;
+	}
+
+	function returnNumberOfCourses($programArray, $semester)
+	{
+		$count = 0;
+		for($i=0;$i<sizeof($programArray[$semester]);$i++)
+		{
+			if($programArray[$semester][$i]->SUBJ !== "")
+			{
+				$count=$count+1;
+			}
+		}
+		
+		return $count;
+	}
+	function getLengthOfSemester($semesterId, $semester, $program  )
+	{
+		if( $program == 'Computer Systems Engineering')
+		{
+			if($semesterId === 0)
+			{
+				//fall
+				switch($semester)
+				{
+					case 0:
+						return 5;
+						
+					case 1:
+						return 5;
+						
+					case 2:
+						return 6;
+						
+					case 3:
+						return 5;
+						
+					case 4:
+						return 5;
+						
+					case 5:
+						return 5;
+						
+					case 6:
+						return 6;
+						
+					case 7:
+						return 6;
+				}
+						
+					
+				
+			}
+			else
+			{
+				//winter
+				switch($semester)
+				{
+					case 0:
+						return 5;
+						
+					case 1:
+						return 5;
+						
+					case 2:
+						return 5;
+						
+					case 3:
+						return 5;
+						
+					case 4:
+						return 5;
+						
+					case 5:
+						return 5;
+						
+					case 6:
+						return 5;
+						
+					case 7:
+						return 5;
+				}
+			}
+			
+		} 
+		elseif($program == 'Software Engineering')
+		{
+			
+		}
+		elseif($program == 'Communication Engineering')
+		{
+			
+		}
+		elseif($program == 'Biomedical Engineering')
+		{
+			
+		}
+		
+		
 	}
 	function numberOfSections($semester, $subj, $crse)
 	{
@@ -362,7 +476,7 @@
 		return $schedule;
 		
 	}
-
+	
 	function scheduleTimetable($schedule, $timetable, $semester, $program)
 	{
 			set_time_limit(600);
@@ -375,11 +489,70 @@
 			{
 				$semesterstring = "winterdata";
 			}
-			$alltimetables = array();
+		
+			/*$electiveinfo = array();
+			$electivebool = false;
+			$electiveindex =array();
+			for($i = 0;$i<sizeof($schedule[$semester]);$i++)
+			{
+				if(strpos($schedule[ $semester][$i]->SUBJ, "ELECTIVE")!==false)
+				{
+					$temp = explode("-", $schedule[ $semester][$i]->CRSE);
+					$tempelective =  getElectiveInfo($program, $temp[0], $temp[1], 0);
+					array_push($electiveinfo, $tempelective);
+					array_push($electiveindex, $i);
+
+					$electivebool = true;
+				}
+			}
+			
+			if($electivebool===true)
+			{
+				$result= combinations($electiveinfo);
+				$result2 = array();
+					
+					for($i =0;$i<sizeof($result);$i= $i+100)
+					{
+						for($j =0;$j<sizeof($result[$i]);$j++)
+						{
+						
+						
+								$temp3 = explode(" ", $result[$i][$j]);
+								$subj =$temp3[0];//elective subj
+								$crse = $temp3[1];//elective csre
+								$schedule[$semester][$electiveindex[$j]]->SUBJ = $subj;
+								$schedule[$semester][$electiveindex[$j]]->CRSE = $crse;
+						}
+						if(noduplicates($schedule[$semester]))
+						{
+							$alltimetables = getClass($semester, $semesterstring, $schedule, $timetable, $alltimetables, $program);
+							
+							for($k = 0;$k<sizeof($alltimetables);$k++)
+							{
+							
+									array_push($result2, $alltimetables[$k]);
+
+							}
+						}
+					
+						if(sizeof($result2)>5)
+						{
+							return $result2;
+						}
+					}
+					return $result2;
+				}
+			else
+			{
+				$alltimetables = getClass($semester, $semesterstring, $schedule, $timetable, $alltimetables, $program);
+				return $alltimetables;
+			}
+			*/
 			$timetables = array();
+			$alltimetables = array();
 			$alltimetables = getClass($semester, $semesterstring, $schedule, $timetable, $alltimetables, $program);
-			return $alltimetables;
-		/*	$result = array();
+			//return $alltimetables;
+			$result = array();
 			$resultindex = array();
 			for($i = 0;$i<sizeof($alltimetables);$i++)
 			{	
@@ -415,13 +588,92 @@
 			{
 				array_push($result, $alltimetables[$i]);
 			}
-			return $result;*/
+			
+			return $result;
 			
 			
 	}
+	function noDuplicates($schedule)
+	{
+		
+		for($i=0;$i<sizeof($schedule);$i++)
+		{
+			for($j=0;$j<sizeof($schedule);$j++)
+			{
+				if($j!==$i)
+				{
+					if($schedule[$i]->SUBJ === $schedule[$j]->SUBJ && $schedule[$i]->CRSE ===$schedule[$j]->CRSE )
+					{
+						return false;
+					}
+					
+				}
+			}
+		}
+		return true;
+	}
+	function combinations($arrays, $i = 0) {
+		if (!isset($arrays[$i])) {
+			return array();
+		}
+		if ($i == count($arrays) - 1) {
+			return $arrays[$i];
+		}
+
+		// get combinations from subsequent arrays
+		$tmp = combinations($arrays, $i + 1);
+
+		$result = array();
+
+		// concat each array from tmp with each element from $arrays[$i]
+		foreach ($arrays[$i] as $v) {
+			foreach ($tmp as $t) {
+				
+			//	$result[] = is_array($t) ? array_merge(array($v), $t) : array($v, $t);
+				if($v !== $t)
+				{
+					if(is_array($t))
+					{
+						$result[] = array_merge(array($v), $t); 
+					}
+					else
+					{
+						$result[] = array($v, $t);
+					}
+				}
+				
+			}
+		}
+
+		return $result;
+	}
+	function convertElectivesToSchedule($electiveinfo)
+	{	
+	
+		$count = 0;
+		$count1 = 0;
+		$count2 = 0;
+		$count3 = 0;
+		
+		
+	
+	
+		
+		for($i = 0;$i<sizeof($schedule[$semester]);$i++)
+		{
+			if(strpos($schedule[ $semester][$i]->SUBJ, "ELECTIVE")!==false)
+			{
+				$temp = explode("-", $schedule[ $semester][$i]->CRSE);
+				$tempelective =  getElectiveInfo($program, $temp[0], $temp[1], 0);
+				
+			}
+		}
+		
+	}
+
 	function electest($semester, $semesterstring, $schedule, $timetable, $alltimetables, $program)
 	{
-			if(sizeof($alltimetables)>100)
+			if(sizeof($alltimetables)>1000)
 		{
 			return $alltimetables;
 		}
@@ -492,7 +744,7 @@
 					{
 						$temptable = $timetable;
 						array_push($temptable, $class); //push the specified class into the array
-						//array_push($alltimetables, $temptable);
+						array_push($alltimetables, $temptable);
 						$alltimetables = getClass($semester, $semesterstring, $schedule, $temptable, $alltimetables, $program);
 					}
 					
@@ -660,7 +912,7 @@
 	}
 	function electivesattempt3($semester, $semesterstring, $schedule, $timetable, $alltimetables, $program)
 	{
-		if(sizeof($alltimetables)>100)
+		if(sizeof($alltimetables)>10)
 		{
 			return $alltimetables;
 		}
@@ -788,7 +1040,7 @@
 				{
 					$temptable = $timetable;
 					array_push($temptable, $class); //push the specified class into the array
-					//array_push($alltimetables, $temptable);
+					array_push($alltimetables, $temptable);
 					$alltimetables = getClass($semester, $semesterstring, $schedule, $temptable, $alltimetables, $program);
 				}
 				
