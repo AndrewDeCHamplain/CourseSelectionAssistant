@@ -21,7 +21,7 @@
 		{"SUBJ":"CCDP","CRSE":"2100"},
 		{"SUBJ":"SYSC","CRSE":"2001"},
 		{"SUBJ":"SYSC","CRSE":"2004"},
-		{"SUBJ":"ELECTIVE","CRSE":""}
+		{"SUBJ":"ELECTIVE","CRSE":"1-GS"}
 	],
 	[
 		{"SUBJ":"MATH","CRSE":"3705"},
@@ -32,7 +32,7 @@
         {"SUBJ":"","CRSE":""}
 	],
 	[
-		{"SUBJ":"MATH","CRSE":"3800"},
+		{"SUBJ":"ECOR","CRSE":"3800"},
 		{"SUBJ":"ELEC","CRSE":"3500"},
 		{"SUBJ":"SYSC","CRSE":"3600"},
 		{"SUBJ":"SYSC","CRSE":"4001"},
@@ -50,17 +50,17 @@
 	[
 		{"SUBJ":"SYSC","CRSE":"4602"},
 		{"SUBJ":"ELEC","CRSE":"4705"},
-		{"SUBJ":"ELECTIVE","CRSE":""},
+		{"SUBJ":"ELECTIVE","CRSE":"2-GS"},
 		{"SUBJ":"SYSC","CRSE":"4907"},
-		{"SUBJ":"ELECTIVE","CRSE":""},
-		{"SUBJ":"ELECTIVE","CRSE":""}
+		{"SUBJ":"ELECTIVE","CRSE":"3-NB"},
+		{"SUBJ":"ELECTIVE","CRSE":"4-NB"}
 	],
 	[
 		{"SUBJ":"SYSC","CRSE":"4507"},
 		{"SUBJ":"SYSC","CRSE":"4805"},
 		{"SUBJ":"ECOR","CRSE":"4995"},
 		{"SUBJ":"SYSC","CRSE":"4907"},
-		{"SUBJ":"ELECTIVE","CRSE":""},
-		{"SUBJ":"ELECTIVE","CRSE":""}
+		{"SUBJ":"ELECTIVE","CRSE":"5-NB"},
+		{"SUBJ":"ELECTIVE","CRSE":"6-NB"}
 	]
 ] 

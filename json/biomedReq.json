@@ -20,7 +20,7 @@
 		{"SUBJ":"ELEC","CRSE":"2501"},
 		{"SUBJ":"ECOR","CRSE":"2606"},
 		{"SUBJ":"SYSC","CRSE":"2006"},
-		{"SUBJ":"ELECTIVE","CRSE":""},
+		{"SUBJ":"SCI ELECTIVE","CRSE":"1-NA"},
 		{"SUBJ":"","CRSE":""}
 	],
 	[
@@ -36,7 +36,7 @@
 		{"SUBJ":"ELEC","CRSE":"3908"},
 		{"SUBJ":"SYSC","CRSE":"3203"},
 		{"SUBJ":"SYSC","CRSE":"3006"},
-		{"SUBJ":"ELECTIVE","CRSE":""},
+		{"SUBJ":"SCI ELECTIVE","CRSE":"2-NA"},
 		{"SUBJ":"","CRSE":""}
 	],
 	[
@@ -53,14 +53,14 @@
 		{"SUBJ":"SYSC","CRSE":"4405"},
 		{"SUBJ":"SYSC","CRSE":"4203"},
 		{"SUBJ":"SYSC","CRSE":"4917"},
-		{"SUBJ":"ELECTIVE","CRSE":""}
+		{"SUBJ":"ELECTIVE","CRSE":"3-GS"}
 	],
 	[
 		{"SUBJ":"ECOR","CRSE":"4995"},
-		{"SUBJ":"ELECTIVE","CRSE":""},
-		{"SUBJ":"ELECTIVE","CRSE":""},
-		{"SUBJ":"ELECTIVE","CRSE":""},
+		{"SUBJ":"ELECTIVE","CRSE":"4-NB"},
+		{"SUBJ":"ELECTIVE","CRSE":"5-NB"},
+		{"SUBJ":"ELECTIVE","CRSE":"6-NC"},
 		{"SUBJ":"SYSC","CRSE":"4917"},
-		{"SUBJ":"ELECTIVE","CRSE":""}
+		{"SUBJ":"ELECTIVE","CRSE":"7-GS"}
 	]
 ]

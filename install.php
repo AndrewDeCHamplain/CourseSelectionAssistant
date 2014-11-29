@@ -1,8 +1,10 @@
 <?php
+	
 	/* 'import' db.php*/
 	require_once("php/db.php");
 	/* create the object*/
 	$data = new database("");
+	
 	
 	$sql = "CREATE DATABASE IF NOT EXISTS usersdb2" ;
 	$data->execute($sql);
@@ -10,6 +12,7 @@
 	
 	// Create database to hold user profiles
 	$data = new database("usersdb2");
+	$data->execute("DROP TABLE IF EXISTS userslist");
 	$sql = "CREATE TABLE IF NOT EXISTS `userslist`(
 		login VARCHAR(20),
 		firstname VARCHAR(40),
@@ -18,10 +21,12 @@
 		studentnumber INT(9),
 		stream VARCHAR(100),
 		coursedata VARCHAR(100),
+		fallschedule VARCHAR(1000),
+		winterschedule VARCHAR(1000),
 		PRIMARY KEY (login)
 	)";
 	$data->execute($sql);
-	
+
 	// Create database to hold data for fall classes
 	$data->execute("DROP TABLE IF EXISTS `falldata`");
 	$sqld = "CREATE TABLE IF NOT EXISTS `falldata`(
@@ -35,7 +40,7 @@
 		starttime INT(4),
 		endtime INT(4),
 		roomcap INT(4),
-		enrolled INT(4),
+		available INT(4),
 		PRIMARY KEY (id)
 	)";
 	$data->execute($sqld);
@@ -53,7 +58,7 @@
 		starttime INT(4),
 		endtime INT(4),
 		roomcap INT(4),
-		enrolled INT(4),
+		available INT(4),
 		PRIMARY KEY (id)
 	)";
 	$data->execute($sqld);
