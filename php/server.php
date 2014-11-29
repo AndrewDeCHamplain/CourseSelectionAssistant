@@ -123,14 +123,9 @@
   
  	$login = $_COOKIE['login'];
  	$stream = $_POST['program'];
- 		
- 	$query = mysql_query("SELECT * FROM userslist WHERE login='$login'") or die(mysql_error());
-	$row = mysql_fetch_array($query);
-	$previousstream = $row['stream'];
-	$currentcoursedata = $row['coursedata']; 
+
 	$coursedata = "";
-	 
-	$prevcoursearray = returnCourseArray($previousstream); 
+
  	$coursearray = returnCourseArray($stream);
  	$numClassesPerSemester = 6;
  	$numOfSemesters = 8;
@@ -149,58 +144,17 @@
 			}
 		}
 	}
-	
-	echo $coursedata . "<br />";
-	
-	if($currentcoursedata !== ""){
-		$courseDataArray = getCourseDataArray($coursedata);
-		$currentcourseDataArray = getCourseDataArray($currentcoursedata);
-		
-		for($semIdx = 0; $semIdx<$numOfSemesters; $semIdx++)
-		{
-			for($crseIdx = 0; $crseIdx<$numClassesPerSemester; $crseIdx++)
-			{
-				if($currentcourseDataArray[$semIdx][$crseIdx] == "1")
-				{
-					for($semIdx2 = 0; $semIdx2<$numOfSemesters; $semIdx2++)
-					{
-						for($crseIdx2 = 0; $crseIdx2<$numClassesPerSemester; $crseIdx2++)
-						{
-							if(($prevcoursearray[$semIdx][$crseIdx]->SUBJ . $prevcoursearray[$semIdx][$crseIdx]->CRSE) == 
-								($coursearray[$semIdx2][$crseIdx2]->SUBJ . $coursearray[$semIdx2][$crseIdx2]->CRSE))
-							{
-								$courseDataArray[$semIdx][$crseIdx] = "1";
-							}
-						}
-					}
-				}
-			}
-		}
-		
-		$coursedata='';
-		//echo sizeof($courseDataArray)."<br/>";
-		//echo sizeof($courseDataArray[0])."<br/>";
-		for($semIdx = 0; $semIdx<$numOfSemesters; $semIdx++)
-		{
-			for($crseIdx = 0; $crseIdx<$numClassesPerSemester; $crseIdx++)
-			{
-				$coursedata = $coursedata . $courseDataArray[$crseIdx][$semIdx];
-			}
-		}
-		echo $coursedata;
-	}	
- 	
  	 
  	$sql = "UPDATE userslist SET stream='$stream', coursedata='$coursedata' WHERE login='$login'"; 
  	$data->execute($sql);
  	 
  	if($data->connection->affected_rows == 1){
-		echo "The stream is updated, and courses transferred.";
+		echo "The stream is updated.";
  	}else{
 		echo "The stream was not updated.";
  	}
   
- 	header("refresh:10;url=view2.php");
+ 	header("refresh:2;url=view2.php");
  }
 	
 	if($type=="logout"){

@@ -163,8 +163,9 @@
 				var selectList = document.createElement("select");
 				selectList.id = "electiveOption"+i;
 				selectList.name = "electiveOption";
+				selectList.title = electiveCourses[i][0]+" "+electiveCourses[i][1];
 				//console.log("electives: "+electiveCourses[i][0]+" "+electiveCourses[i][1]);
-
+				
 				myDiv.appendChild(selectList);
 
 				//Create and append the options
